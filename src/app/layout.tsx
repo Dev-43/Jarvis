@@ -15,13 +15,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased">
+      <body className="cyber-bg text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-rose-900/60 selection:text-white">
         {/* Navigation Bar */}
-        <header className="border-b border-slate-800 bg-slate-900/70 backdrop-blur sticky top-0 z-50">
+        <header className="border-b border-rose-950/40 bg-obsidian-950/80 backdrop-blur-xl sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/" className="flex items-center space-x-2 group">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center space-x-3 group">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-crimson-600 to-rose-900 flex items-center justify-center shadow-crimson-glow group-hover:scale-105 transition-transform border border-crimson-400/30">
                   <svg
                     className="w-5 h-5 text-white"
                     fill="none"
@@ -36,40 +36,44 @@ export default function RootLayout({
                     />
                   </svg>
                 </div>
-                <span className="font-bold text-xl tracking-tight text-white">
-                  Warden
-                </span>
-                <span className="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full font-mono">
-                  Nemotron Tiered
-                </span>
+                <div className="flex items-baseline space-x-2">
+                  <span className="font-extrabold text-xl tracking-tight text-white font-sans">
+                    Warden
+                  </span>
+                  <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded-full bg-crimson-950/80 text-crimson-400 border border-crimson-800/50">
+                    Oversight Layer
+                  </span>
+                </div>
               </Link>
             </div>
 
             <nav className="flex items-center space-x-6">
               <Link
                 href="/"
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                className="text-xs font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-100 transition-colors"
               >
-                Overview
+                Architecture
               </Link>
               <Link
                 href="/compare"
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center space-x-1"
+                className="text-xs font-semibold uppercase tracking-wider text-zinc-300 hover:text-white transition-colors flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 hover:border-crimson-600/40"
               >
                 <span>Live Compare</span>
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-crimson-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-crimson-600"></span>
                 </span>
               </Link>
               <Link
                 href="/metrics"
-                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                className="text-xs font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-100 transition-colors"
               >
-                Metrics & Evals
+                Telemetry & Evals
               </Link>
-              <div className="hidden sm:block text-xs text-slate-500 border-l border-slate-800 pl-4">
-                Nebius Token Factory
+              <div className="hidden md:flex items-center space-x-2 text-[11px] font-mono text-zinc-400 border-l border-zinc-800 pl-4">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-zinc-500">Nebius Token Factory</span>
+                <span className="text-zinc-300">Nemotron 3</span>
               </div>
             </nav>
           </div>
@@ -79,13 +83,16 @@ export default function RootLayout({
         <main className="flex-1 flex flex-col">{children}</main>
 
         {/* Footer */}
-        <footer className="border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500">
+        <footer className="border-t border-rose-950/30 bg-obsidian-950/90 py-6 text-xs text-zinc-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
-            <p>
-              Built for the Nebius x NVIDIA Global AI Hackathon. Track: Best Apps & Agents.
-            </p>
-            <p className="font-mono text-slate-600">
-              MIT License • NVIDIA Nemotron 3 (Nano / Super / Ultra)
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 rounded-full bg-crimson-500"></div>
+              <p className="font-medium text-zinc-400">
+                Nebius x NVIDIA Global AI Hackathon • Track: Best Apps & Agents
+              </p>
+            </div>
+            <p className="font-mono text-zinc-500 text-[11px]">
+              NVIDIA Nemotron (Nano 30B • Super 120B • Ultra 550B) • Hard Limits H1–H6 • SHA-256 Hash Chain
             </p>
           </div>
         </footer>
