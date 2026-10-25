@@ -26,7 +26,7 @@ const TIER_CONFIGS: Record<Tier | "agent", TierConfig> = {
   nano: {
     modelEnv: "TF_MODEL_NANO",
     defaultModel: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
-    maxTokens: 600,
+    maxTokens: 2048,
     timeoutMs: 25000,
     priceInEnv: "PRICE_NANO_IN",
     defaultPriceIn: 0.06,
@@ -36,7 +36,7 @@ const TIER_CONFIGS: Record<Tier | "agent", TierConfig> = {
   super: {
     modelEnv: "TF_MODEL_SUPER",
     defaultModel: "nvidia/nemotron-3-super-120b-a12b",
-    maxTokens: 900,
+    maxTokens: 2500,
     timeoutMs: 35000,
     priceInEnv: "PRICE_SUPER_IN",
     defaultPriceIn: 0.30,
@@ -46,7 +46,7 @@ const TIER_CONFIGS: Record<Tier | "agent", TierConfig> = {
   ultra: {
     modelEnv: "TF_MODEL_ULTRA",
     defaultModel: "nvidia/Nemotron-3-Ultra-550b-a55b",
-    maxTokens: 1500,
+    maxTokens: 3500,
     timeoutMs: 60000,
     priceInEnv: "PRICE_ULTRA_IN",
     defaultPriceIn: 1.00,
@@ -56,7 +56,7 @@ const TIER_CONFIGS: Record<Tier | "agent", TierConfig> = {
   agent: {
     modelEnv: "TF_MODEL_AGENT",
     defaultModel: "nvidia/nemotron-3-super-120b-a12b",
-    maxTokens: 700,
+    maxTokens: 2048,
     timeoutMs: 35000,
     priceInEnv: "PRICE_SUPER_IN",
     defaultPriceIn: 0.30,
@@ -142,7 +142,11 @@ export async function chatJson<T>(opts: ChatJsonOptions<T>): Promise<ChatJsonRes
       );
 
       const latencyMs = Date.now() - startTime;
-      const content = response.choices[0]?.message?.content || "";
+      const message = response.choices[0]?.message;
+      let content = message?.content || "";
+      if (!content.trim() && (message as unknown as { reasoning?: string })?.reasoning) {
+        content = (message as unknown as { reasoning: string }).reasoning;
+      }
       const tokensIn = response.usage?.prompt_tokens ?? 0;
       const tokensOut = response.usage?.completion_tokens ?? 0;
 
