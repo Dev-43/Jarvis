@@ -50,160 +50,145 @@ export default function MetricsPage() {
   const spendPct = Math.min(100, (currentSpend / spendCap) * 100);
 
   return (
-    <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+    <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
-      <div className="glass-panel rounded-2xl p-6 border border-rose-950/40 glow-border-top shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-3">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans flex items-center space-x-3">
-              <span>Security Telemetry & Evals</span>
+      <div className="p-6 rounded-xl bg-[#111113] border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center space-x-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Telemetry & Evaluation Benchmark
             </h1>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-crimson-950/90 text-crimson-400 border border-crimson-800/60 font-mono font-semibold uppercase">
-              Live Token Factory
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
+              Token Factory
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-zinc-400">
-            Real-time spend ledger, tiered Nemotron inference latencies, 20-case policy benchmarks, and SHA-256 cryptographic proofs.
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            Real-time inference costs, Nemotron hardware latencies, 20-case policy benchmarks, and SHA-256 chain verification.
           </p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
           <button
             onClick={fetchMetrics}
-            className="px-4 py-2 rounded-xl bg-obsidian-900 hover:bg-obsidian-850 text-zinc-300 hover:text-white text-xs font-semibold border border-zinc-800 transition-colors shadow-md"
+            className="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium border border-zinc-800 transition-colors"
           >
-            Refresh Telemetry
+            Refresh
           </button>
           <Link
             href="/compare"
-            className="px-5 py-2 rounded-xl bg-gradient-to-r from-crimson-600 to-rose-700 hover:from-crimson-500 hover:to-rose-600 text-white text-xs font-bold shadow-crimson-glow transition-all border border-crimson-400/40"
+            className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold transition-colors"
           >
-            Go to Compare
+            Live Compare
           </Link>
         </div>
       </div>
 
       {loading ? (
-        <div className="py-24 text-center text-zinc-400 animate-pulse font-mono text-sm">
+        <div className="py-20 text-center text-zinc-500 font-mono text-xs">
           Loading metrics from SpendLedger and Audit Chain...
         </div>
       ) : (
         <>
-          {/* Top 4 Key Telemetry Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {/* Card 1: Spend Guard */}
-            <div className="glass-panel rounded-2xl p-5 space-y-3 border border-zinc-800/80 hover:border-zinc-700 transition-all">
-              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider flex justify-between font-mono">
+          {/* Top KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Card 1: Spend Cap */}
+            <div className="p-4 rounded-xl bg-[#111113] border border-zinc-800 space-y-2.5">
+              <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold flex justify-between">
                 <span>Model Spend Cap Guard</span>
-                <span className="text-crimson-400">${currentSpend.toFixed(4)} / ${spendCap}</span>
+                <span className="text-zinc-300">${currentSpend.toFixed(4)} / ${spendCap}</span>
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono">
+              <div className="text-2xl font-bold text-white font-mono">
                 ${currentSpend.toFixed(4)}
               </div>
-              <div className="w-full bg-obsidian-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+              <div className="w-full bg-[#09090b] rounded-full h-1.5 overflow-hidden border border-zinc-850">
                 <div
-                  className="bg-gradient-to-r from-crimson-500 to-rose-600 h-2 rounded-full transition-all duration-500 shadow-crimson-glow"
-                  style={{ width: `${Math.max(3, spendPct)}%` }}
+                  className="bg-white h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.max(2, spendPct)}%` }}
                 ></div>
               </div>
               <p className="text-[11px] text-zinc-500">
-                Hard Limit H2 stops new model invocations if spend exceeds $35.00 limit.
+                Hard Limit H2 stops invocations if spend exceeds $35.00.
               </p>
             </div>
 
             {/* Card 2: Ratchet Tightenings */}
-            <div className="glass-panel rounded-2xl p-5 space-y-3 border border-zinc-800/80 hover:border-zinc-700 transition-all">
-              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider font-mono">
-                One-Way Ratchet Tightenings
+            <div className="p-4 rounded-xl bg-[#111113] border border-zinc-800 space-y-2">
+              <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">
+                Ratchet Tightenings
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono">
+              <div className="text-2xl font-bold text-zinc-100 font-mono">
                 {metrics?.summary?.tightenCount || 0}
               </div>
-              <div className="w-full bg-obsidian-950 rounded-full h-2 overflow-hidden border border-zinc-800">
-                <div className="bg-amber-500 h-2 rounded-full" style={{ width: "100%" }}></div>
-              </div>
               <p className="text-[11px] text-zinc-500">
-                Unauthorized scopes revoked or dangerous tools disabled permanently.
+                Unauthorized scopes revoked or dangerous tools disabled.
               </p>
             </div>
 
-            {/* Card 3: Held Actions */}
-            <div className="glass-panel rounded-2xl p-5 space-y-3 border border-zinc-800/80 hover:border-zinc-700 transition-all">
-              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider font-mono">
+            {/* Card 3: Actions Held */}
+            <div className="p-4 rounded-xl bg-[#111113] border border-zinc-800 space-y-2">
+              <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">
                 Actions Held for Approval
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono">
+              <div className="text-2xl font-bold text-zinc-100 font-mono">
                 {metrics?.summary?.holdsCount || 0}
               </div>
-              <div className="w-full bg-obsidian-950 rounded-full h-2 overflow-hidden border border-zinc-800">
-                <div className="bg-cyan-500 h-2 rounded-full" style={{ width: "100%" }}></div>
-              </div>
               <p className="text-[11px] text-zinc-500">
-                Gated for human approver authorization via Hard Limits H3–H5.
+                Gated for human authorization via Hard Limits H3–H5.
               </p>
             </div>
 
             {/* Card 4: Runs Frozen */}
-            <div className="glass-panel rounded-2xl p-5 space-y-3 border border-zinc-800/80 hover:border-zinc-700 transition-all">
-              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider font-mono">
-                Critical Runs Frozen
+            <div className="p-4 rounded-xl bg-[#111113] border border-zinc-800 space-y-2">
+              <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">
+                Runs Frozen
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-crimson-400 font-mono">
+              <div className="text-2xl font-bold text-rose-400 font-mono">
                 {metrics?.summary?.freezeCount || 0}
               </div>
-              <div className="w-full bg-obsidian-950 rounded-full h-2 overflow-hidden border border-zinc-800">
-                <div className="bg-crimson-600 h-2 rounded-full shadow-crimson-glow" style={{ width: "100%" }}></div>
-              </div>
               <p className="text-[11px] text-zinc-500">
-                Severe prompt injection attacks or data exfiltration permanently halted.
+                Critical breaches permanently halted by fail-closed ratchet.
               </p>
             </div>
           </div>
 
-          {/* Nemotron Tier Latency & Calls Breakdown */}
-          <div className="glass-panel rounded-2xl p-6 border border-zinc-800/80 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-white tracking-tight font-sans">
-                  NVIDIA Nemotron Tier Latency & Usage Breakdown
-                </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Performance across models running on Nebius Token Factory.
-                </p>
-              </div>
-              <span className="text-[10px] uppercase font-mono px-2.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
-                Real-Time Hardware Metrics
-              </span>
+          {/* Model Latencies Card */}
+          <div className="p-5 rounded-xl bg-[#111113] border border-zinc-800 space-y-4">
+            <div>
+              <h2 className="text-sm font-semibold text-white">
+                NVIDIA Nemotron Tier Latency & Volume
+              </h2>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                Runtime inference performance on Nebius Token Factory.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               {["nano", "super", "ultra", "agent"].map((tier) => {
                 const stat = metrics?.tierStats?.[tier] || { calls: 0, p50: 0, p95: 0 };
-                const titles: Record<string, { name: string; tag: string; color: string; border: string }> = {
-                  nano: { name: "Nemotron Nano 30B", tag: "Watcher Tier 1 (Screening)", color: "text-cyan-400", border: "border-cyan-800/40" },
-                  super: { name: "Nemotron Super 120B", tag: "Watcher Tier 2 (Context)", color: "text-purple-400", border: "border-purple-800/40" },
-                  ultra: { name: "Nemotron Ultra 550B", tag: "Watcher Tier 3 (Sovereign)", color: "text-crimson-400", border: "border-crimson-800/40" },
-                  agent: "Nemotron Super 120B (Target Agent)",
-                } as any;
-
-                const meta = titles[tier] || { name: tier, tag: "Model", color: "text-zinc-200", border: "border-zinc-800" };
+                const titles: Record<string, { name: string; role: string }> = {
+                  nano: { name: "Nemotron Nano 30B", role: "Watcher Tier 1" },
+                  super: { name: "Nemotron Super 120B", role: "Watcher Tier 2" },
+                  ultra: { name: "Nemotron Ultra 550B", role: "Watcher Tier 3" },
+                  agent: { name: "Nemotron Super 120B", role: "Target Agent" },
+                };
+                const meta = titles[tier] || { name: tier, role: "Model" };
 
                 return (
-                  <div key={tier} className={`bg-obsidian-950/90 p-4 rounded-xl border ${meta.border} space-y-2.5 shadow-lg`}>
-                    <div className="flex justify-between items-start">
-                      <div className="text-xs font-bold text-zinc-200 font-sans">{meta.name}</div>
+                  <div key={tier} className="p-3.5 rounded-lg bg-[#09090b] border border-zinc-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-zinc-200">{meta.name}</span>
+                      <span className="text-[10px] font-mono text-zinc-500">{meta.role}</span>
                     </div>
-                    <div className="text-[10px] text-zinc-500 font-mono">{meta.tag}</div>
-                    <div className="text-2xl font-extrabold text-white font-mono">
+                    <div className="text-xl font-bold text-white font-mono">
                       {stat.calls} <span className="text-xs text-zinc-500 font-normal">calls</span>
                     </div>
-                    <div className="text-xs text-zinc-400 space-y-1 pt-2 border-t border-zinc-800/80 font-mono text-[11px]">
+                    <div className="text-[11px] text-zinc-400 space-y-0.5 pt-1 border-t border-zinc-850 font-mono">
                       <div className="flex justify-between">
-                        <span className="text-zinc-500">p50 Latency:</span>
-                        <span className="text-zinc-200 font-bold">{stat.p50} ms</span>
+                        <span className="text-zinc-500">p50:</span>
+                        <span>{stat.p50} ms</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-zinc-500">p95 Latency:</span>
-                        <span className="text-zinc-200 font-bold">{stat.p95} ms</span>
+                        <span className="text-zinc-500">p95:</span>
+                        <span>{stat.p95} ms</span>
                       </div>
                     </div>
                   </div>
@@ -212,109 +197,101 @@ export default function MetricsPage() {
             </div>
           </div>
 
-          {/* 20-Case Policy Eval Suite Results Card */}
-          <div className="glass-panel-crimson rounded-2xl p-6 border border-crimson-800/50 space-y-4 shadow-crimson-glow">
+          {/* 20-Case Policy Eval Suite Results */}
+          <div className="p-5 rounded-xl bg-[#111113] border border-zinc-800 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-emerald-glow"></span>
-                  <h2 className="text-lg font-bold text-white tracking-tight font-sans">
-                    20-Case Policy Benchmark Evaluation Suite
-                  </h2>
-                </div>
-                <p className="text-xs text-zinc-300 mt-0.5">
-                  10 in-scope legitimate actions, 10 off-task/adversarial prompt injections tested against live models.
+                <h2 className="text-sm font-semibold text-white">
+                  20-Case Policy Benchmark Evaluation Suite
+                </h2>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  10 in-scope actions, 10 off-task/injection adversarial actions evaluated against live models.
                 </p>
               </div>
               {metrics?.latestEval && (
-                <span className="text-xs font-mono text-zinc-400 bg-obsidian-950 px-3 py-1 rounded-lg border border-zinc-800">
-                  Benchmarked: {new Date(metrics.latestEval.createdAt).toLocaleString()}
+                <span className="text-xs font-mono text-zinc-500">
+                  Last benchmarked: {new Date(metrics.latestEval.createdAt).toLocaleString()}
                 </span>
               )}
             </div>
 
             {!metrics?.latestEval ? (
-              <div className="p-8 bg-obsidian-950 rounded-xl border border-zinc-800 text-center text-xs text-zinc-400 space-y-2">
+              <div className="p-6 bg-[#09090b] rounded-lg border border-zinc-800 text-center text-xs text-zinc-500 space-y-1">
                 <p>No evaluation run recorded yet.</p>
-                <p className="text-zinc-500 font-mono">
+                <p className="text-zinc-600 font-mono">
                   Run <code>npm run evals</code> in terminal to execute the test suite.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 pt-2">
-                <div className="bg-obsidian-950/90 p-4 rounded-xl border border-emerald-800/50 shadow-emerald-glow">
-                  <div className="text-[10px] text-zinc-400 uppercase font-bold font-mono">Accuracy</div>
-                  <div className="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
+                <div className="p-3 rounded-lg bg-[#09090b] border border-zinc-800">
+                  <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">Accuracy</div>
+                  <div className="text-xl font-bold text-emerald-400 font-mono mt-0.5">
                     {(metrics.latestEval.accuracy * 100).toFixed(1)}%
                   </div>
-                  <div className="text-[10px] text-emerald-500/80 mt-1">20/20 Perfect</div>
+                  <div className="text-[10px] text-zinc-500 mt-0.5 font-mono">20/20 Passed</div>
                 </div>
 
-                <div className="bg-obsidian-950/90 p-4 rounded-xl border border-zinc-800">
-                  <div className="text-[10px] text-zinc-400 uppercase font-bold font-mono">False Positive</div>
-                  <div className="text-2xl font-extrabold text-cyan-400 font-mono mt-1">
+                <div className="p-3 rounded-lg bg-[#09090b] border border-zinc-800">
+                  <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">False Positive</div>
+                  <div className="text-xl font-bold text-zinc-100 font-mono mt-0.5">
                     {(metrics.latestEval.falsePositiveRate * 100).toFixed(1)}%
                   </div>
-                  <div className="text-[10px] text-zinc-500 mt-1">0/10 In-Scope Blocked</div>
+                  <div className="text-[10px] text-zinc-500 mt-0.5 font-mono">0/10 In-Scope Blocked</div>
                 </div>
 
-                <div className="bg-obsidian-950/90 p-4 rounded-xl border border-zinc-800">
-                  <div className="text-[10px] text-zinc-400 uppercase font-bold font-mono">Miss Rate</div>
-                  <div className="text-2xl font-extrabold text-crimson-400 font-mono mt-1">
+                <div className="p-3 rounded-lg bg-[#09090b] border border-zinc-800">
+                  <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">Miss Rate</div>
+                  <div className="text-xl font-bold text-rose-400 font-mono mt-0.5">
                     {(metrics.latestEval.missRate * 100).toFixed(1)}%
                   </div>
-                  <div className="text-[10px] text-zinc-500 mt-1">0/10 Attacks Missed</div>
+                  <div className="text-[10px] text-zinc-500 mt-0.5 font-mono">0/10 Attacks Missed</div>
                 </div>
 
-                <div className="bg-obsidian-950/90 p-4 rounded-xl border border-zinc-800">
-                  <div className="text-[10px] text-zinc-400 uppercase font-bold font-mono">Latency p50</div>
-                  <div className="text-2xl font-extrabold text-zinc-200 font-mono mt-1">
-                    {metrics.latestEval.p50LatencyMs} <span className="text-xs text-zinc-500 font-normal">ms</span>
+                <div className="p-3 rounded-lg bg-[#09090b] border border-zinc-800">
+                  <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">p50 Latency</div>
+                  <div className="text-xl font-bold text-zinc-100 font-mono mt-0.5">
+                    {metrics.latestEval.p50LatencyMs} ms
                   </div>
-                  <div className="text-[10px] text-zinc-500 mt-1">Nano Screening</div>
+                  <div className="text-[10px] text-zinc-500 mt-0.5 font-mono">Nano Screening</div>
                 </div>
 
-                <div className="bg-obsidian-950/90 p-4 rounded-xl border border-zinc-800">
-                  <div className="text-[10px] text-zinc-400 uppercase font-bold font-mono">Latency p95</div>
-                  <div className="text-2xl font-extrabold text-zinc-200 font-mono mt-1">
-                    {metrics.latestEval.p95LatencyMs} <span className="text-xs text-zinc-500 font-normal">ms</span>
+                <div className="p-3 rounded-lg bg-[#09090b] border border-zinc-800">
+                  <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">p95 Latency</div>
+                  <div className="text-xl font-bold text-zinc-100 font-mono mt-0.5">
+                    {metrics.latestEval.p95LatencyMs} ms
                   </div>
-                  <div className="text-[10px] text-zinc-500 mt-1">Full Cascade (Ultra)</div>
+                  <div className="text-[10px] text-zinc-500 mt-0.5 font-mono">Full Cascade</div>
                 </div>
 
-                <div className="bg-obsidian-950/90 p-4 rounded-xl border border-purple-800/50">
-                  <div className="text-[10px] text-zinc-400 uppercase font-bold font-mono">Total Spend</div>
-                  <div className="text-2xl font-extrabold text-purple-400 font-mono mt-1">
+                <div className="p-3 rounded-lg bg-[#09090b] border border-zinc-800">
+                  <div className="text-[10px] text-zinc-500 font-mono uppercase font-semibold">Total Cost</div>
+                  <div className="text-xl font-bold text-zinc-100 font-mono mt-0.5">
                     ${metrics.latestEval.totalCostUsd.toFixed(4)}
                   </div>
-                  <div className="text-[10px] text-purple-400/80 mt-1">&lt; 4 Cents Total</div>
+                  <div className="text-[10px] text-zinc-500 mt-0.5 font-mono">20 Invocations</div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Cryptographic Audit Chain Verification Terminal */}
-          <div className="glass-panel rounded-2xl p-6 border border-zinc-800/80 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-white tracking-tight font-sans">
-                  Cryptographic Audit Chain Verification
-                </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Verify SHA-256 hash chains for all historical agent executions. Validates genesis block, monotonic sequences, and tamper-evident payload hashes.
-                </p>
-              </div>
-              <span className="text-[10px] uppercase font-mono px-2.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/50">
-                Tamper-Evident Ledger
-              </span>
+          {/* Cryptographic Audit Verification Terminal */}
+          <div className="p-5 rounded-xl bg-[#111113] border border-zinc-800 space-y-4">
+            <div>
+              <h2 className="text-sm font-semibold text-white">
+                Cryptographic Audit Chain Verification
+              </h2>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                Verify append-only SHA-256 hash chains. Confirms genesis hash, continuous sequential linking, and zero tampering.
+              </p>
             </div>
 
             {(!metrics?.recentRuns || metrics.recentRuns.length === 0) ? (
-              <div className="p-8 text-center text-xs text-zinc-500 bg-obsidian-950 rounded-xl border border-zinc-800">
+              <div className="p-6 text-center text-xs text-zinc-500 bg-[#09090b] rounded-lg border border-zinc-800">
                 No runs recorded yet. Launch a scenario on the Compare page first.
               </div>
             ) : (
-              <div className="divide-y divide-zinc-800/80 bg-obsidian-950 rounded-xl border border-zinc-800 overflow-hidden">
+              <div className="divide-y divide-zinc-800 bg-[#09090b] rounded-lg border border-zinc-800 overflow-hidden">
                 {metrics.recentRuns.map((r: any) => {
                   const result = auditResults[r.id];
                   const isVerifying = verifyingId === r.id;
@@ -322,25 +299,15 @@ export default function MetricsPage() {
                   return (
                     <div
                       key={r.id}
-                      className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:bg-obsidian-900/50 transition-colors"
+                      className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <span className="font-mono text-zinc-100 font-bold">{r.id}</span>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300">
+                          <span className="font-mono text-zinc-200 font-semibold">{r.id}</span>
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">
                             {r.scenarioId} ({r.mode})
                           </span>
-                          <span
-                            className={`text-[10px] font-mono uppercase font-bold ${
-                              r.status === "frozen"
-                                ? "text-crimson-400"
-                                : r.status === "paused_held"
-                                ? "text-amber-400"
-                                : "text-emerald-400"
-                            }`}
-                          >
-                            {r.status}
-                          </span>
+                          <span className="text-[10px] font-mono text-zinc-500 uppercase">{r.status}</span>
                         </div>
                         <div className="text-zinc-500 text-[11px] font-mono">
                           Steps: {r.stepCount} • {new Date(r.createdAt).toLocaleString()}
@@ -350,24 +317,24 @@ export default function MetricsPage() {
                       <div className="flex items-center space-x-3">
                         {result && (
                           <div
-                            className={`px-3 py-1 rounded-lg font-mono text-[11px] font-bold border ${
+                            className={`px-2.5 py-1 rounded text-[11px] font-mono font-medium border ${
                               result.ok
-                                ? "bg-emerald-950/80 text-emerald-400 border-emerald-700/60 shadow-emerald-glow"
-                                : "bg-crimson-950/80 text-crimson-400 border-crimson-700/60 shadow-crimson-glow"
+                                ? "bg-emerald-950/60 text-emerald-400 border-emerald-800"
+                                : "bg-rose-950/60 text-rose-400 border-rose-800"
                             }`}
                           >
                             {result.ok
                               ? `✓ SHA-256 Verified (${result.count} blocks intact)`
-                              : `✗ Tampered at block #${result.brokenAtSeq}`}
+                              : `✗ Broken at seq #${result.brokenAtSeq}`}
                           </div>
                         )}
 
                         <button
                           onClick={() => handleAuditVerify(r.id)}
                           disabled={isVerifying}
-                          className="px-4 py-2 rounded-xl bg-obsidian-900 hover:bg-obsidian-850 text-zinc-200 font-semibold text-xs border border-zinc-700/80 hover:border-crimson-600/50 transition-all shadow-md"
+                          className="px-3 py-1.5 rounded-md bg-zinc-900 hover:bg-zinc-800 text-zinc-200 font-medium text-xs border border-zinc-800 transition-colors"
                         >
-                          {isVerifying ? "Verifying Hash Chain..." : "Verify Chain"}
+                          {isVerifying ? "Verifying..." : "Verify Chain"}
                         </button>
                       </div>
                     </div>

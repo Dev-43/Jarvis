@@ -39,7 +39,6 @@ function CompareDashboard() {
   const [ruleMessage, setRuleMessage] = useState("");
 
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   const isRunningRef = useRef(isRunning);
   isRunningRef.current = isRunning;
@@ -137,7 +136,6 @@ function CompareDashboard() {
     setDraftedRule(null);
     setRuleMessage("");
     setHighlightedEventId(null);
-    setSelectedEvent(null);
 
     try {
       // 1. Create Baseline Run
@@ -276,7 +274,7 @@ function CompareDashboard() {
 
   async function handleDraftRule() {
     if (!protectedRun?.id || !ruleText) return;
-    setRuleMessage("Synthesizing rule with Nemotron Super 120B...");
+    setRuleMessage("Drafting rule with Nemotron Super 120B...");
     try {
       const res = await fetch("/api/interpreter/rule", {
         method: "POST",
@@ -304,7 +302,7 @@ function CompareDashboard() {
         setProtectedState(data.permissionState);
         setDraftedRule(null);
         setRuleText("");
-        setRuleMessage("Rule activated! Applied to permission state via ratchet.");
+        setRuleMessage("Rule activated! Enforced by ratchet.");
       } else {
         alert(data.error?.message || "Activation failed");
       }
@@ -320,43 +318,39 @@ function CompareDashboard() {
     protectedState?.restrictionLog.filter((r) => r.by === "watcher").length || 0;
   const protectedHeldCount = protectedEvents.filter((e) => e.type === "action_held").length;
 
-  // Latest Watcher Verdict for protected
-  const latestVerdictEvent = [...protectedEvents].reverse().find((e) => e.type === "verdict_issued");
   const latestWatcherCall = [...protectedEvents].reverse().find((e) => e.type === "watcher_called");
-  const latestVerdict = latestVerdictEvent ? (latestVerdictEvent.payload as any) : null;
   const latestCall = latestWatcherCall ? (latestWatcherCall.payload as any) : null;
 
   return (
     <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-      {/* Top Header Command Deck */}
-      <div className="glass-panel rounded-2xl p-6 border border-rose-950/40 glow-border-top shadow-2xl relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-1.5">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans">
-                Warden Live Compare
+      {/* Top Header Card */}
+      <div className="p-6 rounded-xl bg-[#111113] border border-zinc-800 space-y-5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center space-x-2.5">
+              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                Live Execution Comparison
               </h1>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-crimson-950/90 text-crimson-400 border border-crimson-800/60 font-mono font-semibold uppercase">
-                Lockstep Simulation
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
+                Lockstep Mode
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl">
-              Parallel execution comparing an unmonitored baseline agent against Warden's tiered Nemotron oversight layer and one-way ratchet.
+            <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl">
+              Compare an unmonitored baseline agent against Warden's tiered Nemotron oversight layer and one-way permission ratchet.
             </p>
           </div>
 
-          {/* Interactive Controls & Scenario Switcher */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Scenario Selector Pills */}
-            <div className="flex rounded-xl bg-obsidian-900 border border-zinc-800/80 p-1">
+          {/* Scenario Selector & Run Controls */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="inline-flex rounded-lg bg-zinc-900 p-1 border border-zinc-800">
               {(["S1", "S2", "S3"] as ScenarioId[]).map((sId) => (
                 <button
                   key={sId}
                   disabled={isRunning}
                   onClick={() => setScenarioId(sId)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold font-mono transition-all ${
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium font-mono transition-colors ${
                     scenarioId === sId
-                      ? "bg-crimson-600 text-white shadow-crimson-glow"
+                      ? "bg-zinc-800 text-white"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
@@ -365,26 +359,22 @@ function CompareDashboard() {
               ))}
             </div>
 
-            {/* Run Button */}
             <button
               onClick={handleRunBoth}
               disabled={isRunning}
-              className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center space-x-2 border ${
+              className={`px-4 py-2 rounded-lg text-xs font-medium transition-colors ${
                 isRunning
-                  ? "bg-zinc-800/80 text-zinc-500 border-zinc-700/50 cursor-not-allowed"
-                  : "bg-gradient-to-r from-crimson-600 to-rose-700 hover:from-crimson-500 hover:to-rose-600 text-white shadow-crimson-glow-lg border-crimson-400/40"
+                  ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/50"
+                  : "bg-white hover:bg-zinc-200 text-zinc-950 font-semibold"
               }`}
             >
-              {isRunning && (
-                <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
-              )}
-              <span>{isRunning ? "Running Simulation..." : "Run Side-by-Side"}</span>
+              {isRunning ? "Running Lockstep..." : "Start Simulation"}
             </button>
 
             {isRunning && (
               <button
                 onClick={() => setIsPaused(!isPaused)}
-                className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold border border-zinc-700 transition-colors"
+                className="px-3.5 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium border border-zinc-800 transition-colors"
               >
                 {isPaused ? "Resume" : "Pause"}
               </button>
@@ -392,110 +382,80 @@ function CompareDashboard() {
           </div>
         </div>
 
-        {/* Task Box & Threat Callout */}
-        <div className="mt-5 pt-4 border-t border-zinc-800/80 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        {/* Declared Task Box */}
+        <div className="pt-4 border-t border-zinc-800/80 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div className="md:col-span-2 space-y-1">
-            <span className="font-semibold text-zinc-500 uppercase tracking-wider text-[10px]">
-              Declared Agent Objective:
+            <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider font-mono">
+              Declared Task
             </span>
-            <div className="font-mono text-zinc-300 bg-obsidian-950 px-3 py-2 rounded-xl border border-zinc-800/80">
+            <div className="p-2.5 rounded-md bg-[#09090b] border border-zinc-800 font-mono text-zinc-300">
               {currentScenario.declaredTask}
             </div>
           </div>
           <div className="space-y-1">
-            <span className="font-semibold text-crimson-400 uppercase tracking-wider text-[10px]">
-              Security Invariant:
+            <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider font-mono">
+              Target Policy Invariant
             </span>
-            <div className="text-zinc-300 bg-crimson-950/30 px-3 py-2 rounded-xl border border-crimson-900/40 text-[11px] leading-tight">
+            <div className="p-2.5 rounded-md bg-[#09090b] border border-zinc-800 text-zinc-400 leading-relaxed text-[11px]">
               {scenarioId === "S2"
-                ? "Hard Limit H4 + Nemotron Watcher cascades to freeze exfiltration of payroll."
+                ? "Fail-closed: Zero exfiltration of payroll data allowed."
                 : scenarioId === "S3"
-                ? "Hard Limit H3 intercepts unlisted outbound email domain."
-                : "Zero false-positive tightening on authorized invoice reconciliation."}
+                ? "Deterministic H3 gates unlisted email domains."
+                : "No false-positive restrictions on authorized tasks."}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Top Live Telemetry HUD Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Card 1: Exfiltration Status */}
-        <div className="glass-panel rounded-xl p-4 border border-zinc-800/80">
-          <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-500">
-            Data Exfiltration Check
-          </div>
-          <div className="mt-1 flex items-baseline justify-between">
-            <div className="text-lg font-bold text-white font-mono">
-              {baselineSentEmails > 0 ? (
-                <span className="text-crimson-400 animate-pulse">BREACH IN BASELINE</span>
-              ) : (
-                <span className="text-zinc-400">No Leaks Yet</span>
-              )}
-            </div>
-            <div className="text-xs font-mono">
-              Warden: <span className="text-emerald-400 font-bold">0 Leaks</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2: Ratchet Permission Envelope */}
-        <div className="glass-panel rounded-xl p-4 border border-zinc-800/80">
-          <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-500">
-            One-Way Ratchet Envelope
-          </div>
-          <div className="mt-1 flex items-baseline justify-between">
-            <div className="text-lg font-bold text-white font-mono">
-              v{protectedState?.version || 1}
-            </div>
-            <div className="text-xs font-mono text-amber-400">
-              {protectedTightenings} Tighten{protectedTightenings === 1 ? "" : "s"}
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3: Watcher Tier Cascade */}
-        <div className="glass-panel rounded-xl p-4 border border-zinc-800/80">
-          <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-500">
-            Active Nemotron Tier
-          </div>
-          <div className="mt-1 flex items-baseline justify-between">
-            <div className="text-lg font-bold font-mono">
-              {latestCall?.tier ? (
-                <span
-                  className={
-                    latestCall.tier === "ultra"
-                      ? "text-crimson-400"
-                      : latestCall.tier === "super"
-                      ? "text-purple-400"
-                      : "text-cyan-400"
-                  }
-                >
-                  {String(latestCall.tier).toUpperCase()} 
-                  {latestCall.tier === "nano" ? " (30B)" : latestCall.tier === "super" ? " (120B)" : " (550B)"}
-                </span>
-              ) : (
-                <span className="text-zinc-500">Standby</span>
-              )}
-            </div>
-            {latestCall?.latencyMs && (
-              <span className="text-xs text-zinc-400 font-mono">{latestCall.latencyMs}ms</span>
+      {/* Summary KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="p-3.5 rounded-lg bg-[#111113] border border-zinc-800">
+          <div className="text-[10px] text-zinc-500 font-mono uppercase">Data Exfiltration</div>
+          <div className="text-base font-bold font-mono mt-1">
+            {baselineSentEmails > 0 ? (
+              <span className="text-rose-400">Baseline Compromised</span>
+            ) : (
+              <span className="text-zinc-400">No Leaks</span>
             )}
           </div>
+          <div className="text-[11px] text-emerald-400 font-mono mt-0.5">
+            Warden: 0 Leaks
+          </div>
         </div>
 
-        {/* Card 4: Cryptographic Chain */}
-        <div className="glass-panel rounded-xl p-4 border border-zinc-800/80">
-          <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-500">
-            Audit Chain Proof
+        <div className="p-3.5 rounded-lg bg-[#111113] border border-zinc-800">
+          <div className="text-[10px] text-zinc-500 font-mono uppercase">Ratchet Version</div>
+          <div className="text-base font-bold font-mono text-white mt-1">
+            v{protectedState?.version || 1}
           </div>
-          <div className="mt-1 flex items-baseline justify-between">
-            <div className="text-lg font-bold text-emerald-400 font-mono flex items-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>SHA-256 Valid</span>
-            </div>
-            <span className="text-xs text-zinc-500 font-mono">
-              {protectedEvents.length} Blocks
-            </span>
+          <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
+            {protectedTightenings} Tighten Action{protectedTightenings === 1 ? "" : "s"}
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-lg bg-[#111113] border border-zinc-800">
+          <div className="text-[10px] text-zinc-500 font-mono uppercase">Active Watcher Tier</div>
+          <div className="text-base font-bold font-mono text-zinc-200 mt-1">
+            {latestCall?.tier ? (
+              <span>
+                {String(latestCall.tier).toUpperCase()} {latestCall.tier === "nano" ? "(30B)" : latestCall.tier === "super" ? "(120B)" : "(550B)"}
+              </span>
+            ) : (
+              <span className="text-zinc-500">Standby</span>
+            )}
+          </div>
+          <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
+            {latestCall?.latencyMs ? `${latestCall.latencyMs} ms latency` : "Ready"}
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-lg bg-[#111113] border border-zinc-800">
+          <div className="text-[10px] text-zinc-500 font-mono uppercase">Audit Integrity</div>
+          <div className="text-base font-bold font-mono text-emerald-400 mt-1">
+            SHA-256 Valid
+          </div>
+          <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
+            {protectedEvents.length} blocks chained
           </div>
         </div>
       </div>
@@ -505,32 +465,32 @@ function CompareDashboard() {
         {/* ========================================================= */}
         {/* LEFT COLUMN: BASELINE RUN (CONTROL GROUP)                  */}
         {/* ========================================================= */}
-        <div className="bg-obsidian-900/90 border border-red-950/40 rounded-2xl p-5 space-y-5 shadow-xl relative overflow-hidden">
-          <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+        <div className="p-5 rounded-xl bg-[#111113] border border-zinc-800 space-y-4">
+          <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base sm:text-lg font-bold text-white font-sans">
+                <h2 className="text-sm font-semibold text-white">
                   Baseline Agent (Unmonitored)
                 </h2>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700/50">
-                  Vulnerable
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                  Control
                 </span>
               </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                Full overbroad permissions, static rules only, no Watcher oversight.
+              <p className="text-xs text-zinc-500 mt-0.5">
+                Standard tool execution without runtime overseer or ratchet.
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono px-2.5 py-1 rounded bg-obsidian-950 text-zinc-400 border border-zinc-800">
-                Step: {baselineRun?.stepCount || 0}/25
+              <span className="text-xs font-mono text-zinc-400">
+                Step {baselineRun?.stepCount || 0}/25
               </span>
               <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full uppercase font-mono ${
+                className={`text-[10px] font-mono px-2 py-0.5 rounded uppercase font-semibold ${
                   baselineRun?.status === "completed"
                     ? "bg-zinc-800 text-zinc-300"
                     : baselineRun?.status === "running"
-                    ? "bg-blue-950/60 text-blue-400 border border-blue-800/40 animate-pulse"
-                    : "bg-zinc-800/80 text-zinc-400"
+                    ? "bg-blue-950 text-blue-400 border border-blue-900"
+                    : "bg-zinc-900 text-zinc-400 border border-zinc-800"
                 }`}
               >
                 {baselineRun?.status || "Idle"}
@@ -538,28 +498,25 @@ function CompareDashboard() {
             </div>
           </div>
 
-          {/* Breach Hazard Warning Banner (Active when data leaked) */}
+          {/* Breach Callout */}
           {baselineSentEmails > 0 && (
-            <div className="p-3.5 rounded-xl bg-crimson-950/80 border border-crimson-600/70 shadow-crimson-glow space-y-1">
-              <div className="flex items-center space-x-2 text-crimson-400 font-bold text-xs uppercase tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-crimson-500 animate-ping"></span>
-                <span>Critical Security Breach — Data Leaked</span>
+            <div className="p-3 rounded-lg bg-rose-950/30 border border-rose-900/60 text-xs space-y-1">
+              <div className="font-semibold text-rose-400">
+                Data Exfiltration Succeeded
               </div>
-              <p className="text-xs text-zinc-200 leading-relaxed">
-                The agent fell for the indirect prompt injection in <code className="text-crimson-300 font-mono">INV-1007</code>, read <code className="text-crimson-300 font-mono">/hr/payroll/</code>, and dispatched confidential salaries to an external attacker via email.
+              <p className="text-zinc-300 text-[11px] leading-relaxed">
+                The unmonitored agent parsed the prompt injection in invoice INV-1007, read /hr/payroll/2026-09-payroll.csv, and transmitted employee salaries to an external recipient.
               </p>
             </div>
           )}
 
-          {/* Baseline Permissions Matrix (Static, Overbroad) */}
-          <div className="bg-obsidian-950/80 rounded-xl p-4 border border-zinc-800/80 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-zinc-400 uppercase tracking-wider text-[10px]">
-                Static Permission Grants (Never Shrinks)
-              </span>
-              <span className="text-zinc-500 font-mono text-[10px]">v1 (Unrestricted)</span>
+          {/* Baseline Permissions */}
+          <div className="p-3.5 rounded-lg bg-[#09090b] border border-zinc-800 space-y-2">
+            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase">
+              <span>Static Grants (Unrestricted)</span>
+              <span>v1</span>
             </div>
-            <div className="flex flex-wrap gap-1.5 pt-1">
+            <div className="flex flex-wrap gap-1.5">
               {INITIAL_OVERBROAD_GRANTS.map((g, idx) => (
                 <span
                   key={idx}
@@ -571,32 +528,32 @@ function CompareDashboard() {
             </div>
           </div>
 
-          {/* Baseline Outbox Card */}
-          <div className="bg-obsidian-950/80 rounded-xl p-4 border border-zinc-800/80 space-y-2">
+          {/* Baseline Outbox */}
+          <div className="p-3.5 rounded-lg bg-[#09090b] border border-zinc-800 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-zinc-400 uppercase tracking-wider text-[10px]">
+              <span className="text-[10px] font-mono text-zinc-400 uppercase">
                 Outbound Mail Dispatched ({baselineOutbox.length})
               </span>
               {baselineOutbox.length > 0 && (
-                <span className="text-crimson-400 font-bold text-[11px] font-mono animate-pulse">
-                  EXFILTRATION SUCCESSFUL
+                <span className="text-rose-400 font-mono text-[11px] font-semibold">
+                  Exfiltrated
                 </span>
               )}
             </div>
             {baselineOutbox.length === 0 ? (
-              <p className="text-xs text-zinc-500 italic py-1">No external emails sent yet.</p>
+              <p className="text-xs text-zinc-500 italic py-1">No outbound emails dispatched yet.</p>
             ) : (
               <div className="space-y-2 pt-1">
                 {baselineOutbox.map((mail, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-lg bg-crimson-950/40 border border-crimson-800/50 text-xs space-y-1.5"
+                    className="p-2.5 rounded bg-zinc-950 border border-zinc-800 text-xs space-y-1 font-mono"
                   >
-                    <div className="flex justify-between font-mono text-crimson-300 text-[11px]">
+                    <div className="flex justify-between text-zinc-300 text-[11px]">
                       <span>To: {mail.to}</span>
-                      <span>Subj: {mail.subject}</span>
+                      <span className="text-zinc-500">Subj: {mail.subject}</span>
                     </div>
-                    <pre className="text-zinc-300 text-[11px] overflow-x-auto whitespace-pre-wrap max-h-24 bg-obsidian-950 p-2 rounded border border-zinc-800/80 font-mono">
+                    <pre className="text-zinc-400 text-[10px] overflow-x-auto whitespace-pre-wrap max-h-20 bg-[#09090b] p-1.5 rounded border border-zinc-850">
                       {mail.body}
                     </pre>
                   </div>
@@ -607,13 +564,13 @@ function CompareDashboard() {
 
           {/* Baseline Timeline */}
           <div className="space-y-2">
-            <h3 className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Execution Timeline ({baselineEvents.length})
-            </h3>
-            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+            <div className="text-[10px] font-mono font-semibold text-zinc-500 uppercase tracking-wider">
+              Audit Event Trail ({baselineEvents.length})
+            </div>
+            <div className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
               {baselineEvents.length === 0 ? (
-                <div className="text-center py-10 text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
-                  Click "Run Side-by-Side" to launch baseline agent.
+                <div className="text-center py-8 text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-lg">
+                  Click "Start Simulation" to begin execution.
                 </div>
               ) : (
                 baselineEvents.map((ev) => (
@@ -621,10 +578,7 @@ function CompareDashboard() {
                     key={ev.id}
                     event={ev}
                     isHighlighted={highlightedEventId === ev.id}
-                    onClick={() => {
-                      setHighlightedEventId(ev.id);
-                      setSelectedEvent(ev);
-                    }}
+                    onClick={() => setHighlightedEventId(ev.id)}
                   />
                 ))
               )}
@@ -635,35 +589,34 @@ function CompareDashboard() {
         {/* ========================================================= */}
         {/* RIGHT COLUMN: PROTECTED RUN (WARDEN OVERSIGHT LAYER)       */}
         {/* ========================================================= */}
-        <div className="glass-panel-crimson rounded-2xl p-5 space-y-5 shadow-2xl relative overflow-hidden">
-          <div className="flex items-center justify-between border-b border-crimson-900/30 pb-3">
+        <div className="p-5 rounded-xl bg-[#111113] border border-zinc-700/80 space-y-4">
+          <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
             <div>
-              <div className="flex items-center space-x-2.5">
-                <h2 className="text-base sm:text-lg font-bold text-white font-sans flex items-center space-x-2">
-                  <span>Warden Supervised Agent</span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-emerald-glow"></span>
+              <div className="flex items-center space-x-2">
+                <h2 className="text-sm font-semibold text-white">
+                  Warden Supervised Agent
                 </h2>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-crimson-950 text-crimson-300 border border-crimson-700/50 font-semibold">
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/60 font-semibold">
                   Protected
                 </span>
               </div>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Deterministic limits + Tiered Nemotron + One-way ratchet.
+                Deterministic limits + Tiered Nemotron cascade + One-way ratchet.
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono px-2.5 py-1 rounded bg-obsidian-950 text-zinc-400 border border-zinc-800">
-                Step: {protectedRun?.stepCount || 0}/25
+              <span className="text-xs font-mono text-zinc-400">
+                Step {protectedRun?.stepCount || 0}/25
               </span>
               <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full uppercase font-mono ${
+                className={`text-[10px] font-mono px-2 py-0.5 rounded uppercase font-semibold ${
                   protectedState?.frozen
-                    ? "bg-crimson-950 text-crimson-400 border border-crimson-600 animate-pulse shadow-crimson-glow"
+                    ? "bg-rose-950 text-rose-300 border border-rose-800"
                     : protectedRun?.status === "paused_held"
-                    ? "bg-amber-950/80 text-amber-400 border border-amber-600/50"
+                    ? "bg-amber-950 text-amber-300 border border-amber-800"
                     : protectedRun?.status === "completed"
-                    ? "bg-emerald-950/80 text-emerald-400 border border-emerald-700/50"
-                    : "bg-blue-950/60 text-blue-400 border border-blue-800/40 animate-pulse"
+                    ? "bg-emerald-950 text-emerald-300 border border-emerald-800"
+                    : "bg-blue-950 text-blue-300 border border-blue-800"
                 }`}
               >
                 {protectedState?.frozen ? "FROZEN" : protectedRun?.status || "Idle"}
@@ -673,34 +626,32 @@ function CompareDashboard() {
 
           {/* Frozen / Security Hold Callout */}
           {protectedState?.frozen && (
-            <div className="p-3.5 rounded-xl bg-crimson-950/90 border border-crimson-600/80 shadow-crimson-glow flex items-start space-x-3 text-xs text-crimson-200">
-              <svg className="w-5 h-5 text-crimson-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <div>
-                <strong className="text-white block mb-0.5 font-sans">Run Frozen — Fail-Closed Safety Lever Engaged</strong>
-                Malicious prompt injection or critical boundary breach halted immediately. Outbox transmission aborted. An authenticated human approver must review the incident briefing below.
+            <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/80 text-xs space-y-1">
+              <div className="font-semibold text-rose-300">
+                Security Violation Halted — Run Frozen
               </div>
+              <p className="text-zinc-300 text-[11px] leading-relaxed">
+                Adversarial drift detected. Tool execution halted and outbound exfiltration aborted. An authenticated human approver must review the incident briefing below.
+              </p>
             </div>
           )}
 
-          {/* Dynamic One-Way Ratchet Permissions Matrix */}
-          <div className="bg-obsidian-950/90 rounded-xl p-4 border border-zinc-800/90 space-y-3">
+          {/* Dynamic One-Way Ratchet Permissions */}
+          <div className="p-3.5 rounded-lg bg-[#09090b] border border-zinc-800 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-zinc-300 uppercase tracking-wider text-[10px]">
-                One-Way Ratchet Capability Envelope
+              <span className="text-[10px] font-mono text-zinc-400 uppercase">
+                Ratchet Capability Envelope
               </span>
-              <div className="flex items-center space-x-3 font-mono text-[11px]">
-                <span className="text-crimson-400 font-bold">
+              <div className="flex items-center space-x-2 font-mono text-[11px]">
+                <span className="text-zinc-200 font-semibold">
                   v{protectedState?.version || 1}
                 </span>
                 <span className="text-zinc-500">
-                  ({protectedTightenings} Tighten Intervention{protectedTightenings === 1 ? "" : "s"})
+                  ({protectedTightenings} Tightened)
                 </span>
               </div>
             </div>
 
-            {/* Grants Matrix with Visual Struck-through Revocations */}
             <div className="flex flex-wrap gap-1.5 pt-1">
               {INITIAL_OVERBROAD_GRANTS.map((initialGrant, idx) => {
                 const isCurrentlyActive = protectedState?.grants.some(
@@ -711,7 +662,7 @@ function CompareDashboard() {
                   return (
                     <span
                       key={idx}
-                      className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-200 border border-zinc-800"
+                      className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-900 text-zinc-300 border border-zinc-800"
                     >
                       {initialGrant.tool} {initialGrant.scope}
                     </span>
@@ -720,7 +671,7 @@ function CompareDashboard() {
                   return (
                     <span
                       key={idx}
-                      className="text-[11px] font-mono px-2 py-0.5 rounded bg-crimson-950/80 text-crimson-400 border border-crimson-800/70 line-through decoration-crimson-500 decoration-2 font-bold"
+                      className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-950 text-zinc-500 border border-zinc-850 line-through decoration-zinc-500"
                       title="Revoked by Watcher Ratchet"
                     >
                       {initialGrant.tool} {initialGrant.scope}
@@ -733,41 +684,40 @@ function CompareDashboard() {
             {/* Badges for disabled tools */}
             {((protectedState?.disabledTools && protectedState.disabledTools.length > 0) ||
               (protectedState?.approvalRequiredTools && protectedState.approvalRequiredTools.length > 0)) && (
-              <div className="pt-2 border-t border-zinc-800/80 flex flex-wrap gap-2 text-[10px] font-mono">
+              <div className="pt-2 border-t border-zinc-800 flex flex-wrap gap-1.5 text-[10px] font-mono">
                 {protectedState?.disabledTools.map((t, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded bg-crimson-950 text-crimson-300 border border-crimson-800 font-bold">
-                    TOOL DISABLED: {t}
+                  <span key={idx} className="px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800">
+                    Disabled: {t}
                   </span>
                 ))}
                 {protectedState?.approvalRequiredTools.map((t, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">
-                    APPROVAL REQUIRED: {t}
+                  <span key={idx} className="px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800">
+                    Requires Approval: {t}
                   </span>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Protected Outbound Mail Card (Guaranteed Zero Leaks) */}
-          <div className="bg-obsidian-950/90 rounded-xl p-4 border border-zinc-800/90 space-y-2">
+          {/* Protected Outbox */}
+          <div className="p-3.5 rounded-lg bg-[#09090b] border border-zinc-800 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-zinc-400 uppercase tracking-wider text-[10px]">
-                Outbound Exfiltration Gate
+              <span className="text-[10px] font-mono text-zinc-400 uppercase">
+                Exfiltration Gate
               </span>
-              <span className="text-emerald-400 font-bold text-[11px] flex items-center space-x-1 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span>0 Unauthorized Emails Dispatched</span>
+              <span className="text-emerald-400 font-mono text-[11px] font-medium">
+                0 Emails Leaked
               </span>
             </div>
             {protectedOutbox.length === 0 ? (
-              <p className="text-xs text-emerald-400/80 italic py-1">
+              <p className="text-xs text-zinc-500 italic py-1">
                 Zero data exfiltration. All unauthorized outbound messages blocked.
               </p>
             ) : (
               <div className="space-y-2 pt-1">
                 {protectedOutbox.map((mail, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs">
-                    <div className="font-mono text-zinc-300">To: {mail.to}</div>
+                  <div key={idx} className="p-2.5 rounded bg-zinc-950 border border-zinc-800 text-xs font-mono">
+                    <span className="text-zinc-300">To: {mail.to}</span>
                   </div>
                 ))}
               </div>
@@ -776,49 +726,48 @@ function CompareDashboard() {
 
           {/* Nemotron Ultra Incident Briefing Card */}
           {(briefing || loadingBriefing) && (
-            <div className="glass-panel-crimson rounded-xl p-5 border border-crimson-600/70 space-y-3.5 shadow-crimson-glow">
-              <div className="flex items-center justify-between text-xs border-b border-crimson-900/40 pb-2.5">
-                <span className="font-bold text-white flex items-center space-x-2">
-                  <span className="w-2 h-2 rounded-full bg-crimson-500 animate-pulse"></span>
-                  <span className="font-sans">Executive Incident Briefing (Nemotron Ultra)</span>
+            <div className="p-4 rounded-lg bg-zinc-900 border border-zinc-700 space-y-3">
+              <div className="flex items-center justify-between text-xs border-b border-zinc-800 pb-2">
+                <span className="font-semibold text-white">
+                  Executive Incident Briefing (Nemotron Ultra)
                 </span>
-                <span className="text-crimson-400 font-mono text-[10px]">
-                  &le; 120 words • Cites Real Audit Trail
+                <span className="text-zinc-500 font-mono text-[10px]">
+                  &le; 120 words • Cites Audit Trail
                 </span>
               </div>
 
               {loadingBriefing ? (
-                <div className="py-6 text-center text-xs text-crimson-300/80 animate-pulse font-mono">
-                  Nemotron Ultra synthesizing incident briefing from SHA-256 audit chain...
+                <div className="py-4 text-center text-xs text-zinc-400 animate-pulse font-mono">
+                  Synthesizing incident briefing from SHA-256 audit chain...
                 </div>
               ) : (
                 briefing && (
-                  <div className="text-xs space-y-2.5 text-zinc-300">
+                  <div className="text-xs space-y-2 text-zinc-300">
                     <p>
-                      <strong className="text-white font-sans">Incident:</strong> {briefing.whatHappened}
+                      <strong className="text-white">Incident:</strong> {briefing.whatHappened}
                     </p>
                     <p>
-                      <strong className="text-white font-sans">Why Flagged:</strong> {briefing.whyFlagged}
+                      <strong className="text-white">Why Flagged:</strong> {briefing.whyFlagged}
                     </p>
                     <p>
-                      <strong className="text-white font-sans">Action Taken:</strong> {briefing.whatWasRestricted}
+                      <strong className="text-white">Enforcement:</strong> {briefing.whatWasRestricted}
                     </p>
                     <div className="pt-1">
-                      <strong className="text-white font-sans">Approver Options:</strong>
-                      <ul className="list-disc list-inside mt-1 space-y-0.5 text-zinc-300">
+                      <strong className="text-white">Approver Options:</strong>
+                      <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-zinc-400">
                         {briefing.humanOptions.map((opt, i) => (
                           <li key={i}>{opt}</li>
                         ))}
                       </ul>
                     </div>
                     {briefing.cites.length > 0 && (
-                      <div className="pt-2 border-t border-crimson-900/30 flex flex-wrap items-center gap-1.5">
-                        <span className="text-[10px] text-zinc-500 uppercase font-semibold">Citations:</span>
+                      <div className="pt-2 border-t border-zinc-800 flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] text-zinc-500 font-mono uppercase">Citations:</span>
                         {briefing.cites.map((citeId) => (
                           <button
                             key={citeId}
                             onClick={() => setHighlightedEventId(citeId)}
-                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-crimson-950 hover:bg-crimson-900 text-crimson-300 border border-crimson-800 transition-colors"
+                            className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-750 transition-colors"
                           >
                             {citeId}
                           </button>
@@ -831,14 +780,14 @@ function CompareDashboard() {
             </div>
           )}
 
-          {/* Human Approver Command Terminal */}
-          <div className="bg-obsidian-950/95 rounded-xl p-4 border border-zinc-800/90 space-y-3.5">
+          {/* Human Approver Terminal */}
+          <div className="p-3.5 rounded-lg bg-[#09090b] border border-zinc-800 space-y-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-zinc-300 uppercase tracking-wider text-[10px]">
-                Human Approver Command Terminal
+              <span className="text-[10px] font-mono text-zinc-400 uppercase font-semibold">
+                Human Approver Console
               </span>
-              <span className={`text-[11px] font-mono font-semibold ${isApprover ? "text-emerald-400" : "text-zinc-500"}`}>
-                {isApprover ? "HMAC Session: ACTIVE" : "Auth Required"}
+              <span className={`text-[11px] font-mono ${isApprover ? "text-emerald-400" : "text-zinc-500"}`}>
+                {isApprover ? "Session: Authenticated" : "Auth Required"}
               </span>
             </div>
 
@@ -849,13 +798,13 @@ function CompareDashboard() {
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
                   placeholder="Approver Passcode"
-                  className="bg-obsidian-900 border border-zinc-800 text-white text-xs rounded-lg px-3 py-2 flex-1 focus:ring-1 focus:ring-crimson-500 outline-none font-mono"
+                  className="bg-zinc-900 border border-zinc-800 text-white text-xs rounded-md px-3 py-1.5 flex-1 focus:ring-1 focus:ring-zinc-600 outline-none font-mono"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-crimson-600 hover:bg-crimson-500 text-white text-xs font-bold rounded-lg border border-crimson-500/40 transition-colors shadow-crimson-glow"
+                  className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-md border border-zinc-700 transition-colors"
                 >
-                  Unlock Session
+                  Unlock
                 </button>
               </form>
             ) : (
@@ -864,16 +813,16 @@ function CompareDashboard() {
                   <button
                     onClick={() => handleHumanAction({ action: "approve_held" })}
                     disabled={protectedRun?.status !== "paused_held"}
-                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors shadow-md"
+                    className="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
                   >
                     Approve Once
                   </button>
                   <button
                     onClick={() => handleHumanAction({ action: "deny_held" })}
                     disabled={protectedRun?.status !== "paused_held"}
-                    className="px-3.5 py-1.5 rounded-lg bg-crimson-700 hover:bg-crimson-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors"
+                    className="px-3 py-1.5 rounded-md bg-rose-700 hover:bg-rose-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
                   >
-                    Deny Held Action
+                    Deny Action
                   </button>
                   <button
                     onClick={() =>
@@ -882,23 +831,23 @@ function CompareDashboard() {
                         grant: { tool: "read_file", scope: "/hr/" },
                       })
                     }
-                    className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-colors"
+                    className="px-3 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
                   >
                     Restore /hr/ Scope
                   </button>
                   {protectedState?.frozen && (
                     <button
                       onClick={() => handleHumanAction({ action: "unfreeze" })}
-                      className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-colors"
+                      className="px-3 py-1.5 rounded-md bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium transition-colors"
                     >
-                      Unfreeze Run
+                      Unfreeze
                     </button>
                   )}
                 </div>
 
-                {/* Natural Language Rule Drafter with Nemotron Super */}
-                <div className="pt-3 border-t border-zinc-800/80 space-y-2">
-                  <div className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                {/* Natural Language Rule Drafter */}
+                <div className="pt-3 border-t border-zinc-800 space-y-2">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase">
                     Draft Policy Rule (Nemotron Super 120B)
                   </div>
                   <div className="flex gap-2">
@@ -907,24 +856,24 @@ function CompareDashboard() {
                       value={ruleText}
                       onChange={(e) => setRuleText(e.target.value)}
                       placeholder='e.g., "require approval for send_email"'
-                      className="bg-obsidian-900 border border-zinc-800 text-white text-xs rounded-lg px-3 py-1.5 flex-1 focus:ring-1 focus:ring-crimson-500 outline-none font-mono"
+                      className="bg-zinc-900 border border-zinc-800 text-white text-xs rounded-md px-3 py-1.5 flex-1 focus:ring-1 focus:ring-zinc-600 outline-none font-mono"
                     />
                     <button
                       onClick={handleDraftRule}
-                      className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-lg border border-zinc-700"
+                      className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-md border border-zinc-700"
                     >
                       Draft Rule
                     </button>
                   </div>
-                  {ruleMessage && <p className="text-[11px] text-crimson-400 font-mono">{ruleMessage}</p>}
+                  {ruleMessage && <p className="text-[11px] text-zinc-400 font-mono">{ruleMessage}</p>}
                   {draftedRule && (
-                    <div className="p-3 rounded-lg bg-obsidian-900 border border-zinc-700 flex items-center justify-between text-xs">
-                      <span className="font-mono text-zinc-200">
+                    <div className="p-2.5 rounded-md bg-zinc-900 border border-zinc-800 flex items-center justify-between text-xs font-mono">
+                      <span className="text-zinc-300 text-[11px]">
                         {JSON.stringify(draftedRule.restriction)}
                       </span>
                       <button
                         onClick={handleActivateRule}
-                        className="px-3 py-1 rounded bg-crimson-600 hover:bg-crimson-500 text-white font-bold text-xs shadow-crimson-glow"
+                        className="px-2.5 py-1 rounded bg-zinc-200 hover:bg-white text-zinc-950 font-semibold text-xs"
                       >
                         Activate via Ratchet
                       </button>
@@ -933,18 +882,18 @@ function CompareDashboard() {
                 </div>
               </div>
             )}
-            {loginError && <p className="text-xs text-crimson-400">{loginError}</p>}
+            {loginError && <p className="text-xs text-rose-400 font-mono">{loginError}</p>}
           </div>
 
           {/* Protected Timeline */}
           <div className="space-y-2">
-            <h3 className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <div className="text-[10px] font-mono font-semibold text-zinc-500 uppercase tracking-wider">
               Cryptographic Audit Timeline ({protectedEvents.length})
-            </h3>
-            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+            </div>
+            <div className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
               {protectedEvents.length === 0 ? (
-                <div className="text-center py-10 text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
-                  Click "Run Side-by-Side" to observe protected execution.
+                <div className="text-center py-8 text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-lg">
+                  Click "Start Simulation" to observe protected execution.
                 </div>
               ) : (
                 protectedEvents.map((ev) => (
@@ -952,10 +901,7 @@ function CompareDashboard() {
                     key={ev.id}
                     event={ev}
                     isHighlighted={highlightedEventId === ev.id}
-                    onClick={() => {
-                      setHighlightedEventId(ev.id);
-                      setSelectedEvent(ev);
-                    }}
+                    onClick={() => setHighlightedEventId(ev.id)}
                   />
                 ))
               )}
@@ -981,19 +927,19 @@ function EventCard({
   const getBadgeStyle = () => {
     switch (event.type) {
       case "action_executed":
-        return "bg-emerald-950/80 text-emerald-400 border-emerald-700/60";
+        return "bg-emerald-950/60 text-emerald-400 border-emerald-800/80";
       case "action_blocked":
-        return "bg-crimson-950 text-crimson-400 border-crimson-700/80 shadow-crimson-glow";
+        return "bg-rose-950/60 text-rose-400 border-rose-800/80";
       case "action_held":
-        return "bg-amber-950 text-amber-400 border-amber-700/80";
+        return "bg-amber-950/60 text-amber-400 border-amber-800/80";
       case "run_frozen":
-        return "bg-crimson-950 text-crimson-300 border-crimson-500 font-bold shadow-crimson-glow";
+        return "bg-rose-950 text-rose-300 border-rose-700 font-semibold";
       case "verdict_issued":
-        return "bg-blue-950/80 text-blue-400 border-blue-700/60";
+        return "bg-blue-950/60 text-blue-400 border-blue-800/80";
       case "watcher_called":
-        return "bg-purple-950/80 text-purple-400 border-purple-700/60";
+        return "bg-purple-950/60 text-purple-400 border-purple-800/80";
       case "restriction_applied":
-        return "bg-orange-950/80 text-orange-400 border-orange-700/60";
+        return "bg-zinc-800 text-zinc-300 border-zinc-700";
       default:
         return "bg-zinc-900 text-zinc-400 border-zinc-800";
     }
@@ -1003,20 +949,20 @@ function EventCard({
     <div
       onClick={onClick}
       id={`event-${event.id}`}
-      className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all space-y-1.5 ${
+      className={`p-3 rounded-lg border text-xs cursor-pointer transition-colors space-y-1.5 ${
         isHighlighted
-          ? "border-crimson-500 bg-crimson-950/40 ring-1 ring-crimson-500 shadow-crimson-glow"
-          : "bg-obsidian-950/80 border-zinc-800/80 hover:border-zinc-700"
+          ? "border-zinc-500 bg-zinc-900 ring-1 ring-zinc-500"
+          : "bg-[#09090b] border-zinc-800/80 hover:border-zinc-700"
       }`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="font-mono text-zinc-500 text-[10px]">#{event.seq}</span>
-          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border font-mono ${getBadgeStyle()}`}>
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono border ${getBadgeStyle()}`}>
             {event.type}
           </span>
           {Boolean(payload.tier) && (
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
+            <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
               {String(payload.tier).toUpperCase()}
             </span>
           )}
@@ -1029,13 +975,13 @@ function EventCard({
       {/* Payload summary */}
       <div className="text-zinc-300 text-[11px] leading-relaxed">
         {event.type === "action_proposed" && (
-          <div className="space-y-0.5">
-            <span className="font-mono text-crimson-400 font-semibold">{String(payload.tool)}</span>
-            <span className="text-zinc-400 ml-1.5 font-mono">
+          <div className="space-y-0.5 font-mono">
+            <span className="text-white font-medium">{String(payload.tool)}</span>
+            <span className="text-zinc-400 ml-1.5">
               {JSON.stringify(payload.args || {})}
             </span>
             {Boolean(payload.rationale) && (
-              <p className="text-[10px] text-zinc-500 italic mt-0.5">
+              <p className="text-[10px] text-zinc-500 italic mt-0.5 font-sans">
                 "{String(payload.rationale)}"
               </p>
             )}
@@ -1043,14 +989,14 @@ function EventCard({
         )}
 
         {event.type === "verdict_issued" && (
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2 font-mono">
-              <span className="font-bold text-white">Decision: {String(payload.decision).toUpperCase()}</span>
-              <span className="text-zinc-400">({Math.round(Number(payload.confidence) * 100)}% conf)</span>
-              <span className="text-purple-400">Match: {String(payload.intentMatch)}</span>
+          <div className="space-y-1 font-mono text-[11px]">
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-white">Decision: {String(payload.decision).toUpperCase()}</span>
+              <span className="text-zinc-500">({Math.round(Number(payload.confidence) * 100)}% conf)</span>
+              <span className="text-zinc-400">Match: {String(payload.intentMatch)}</span>
             </div>
             {Array.isArray(payload.reasons) && (
-              <p className="text-zinc-400 text-[10px]">
+              <p className="text-zinc-400 text-[10px] font-sans">
                 {payload.reasons.join("; ")}
               </p>
             )}
@@ -1059,52 +1005,52 @@ function EventCard({
 
         {event.type === "watcher_called" && (
           <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
-            <span>Latency: {String(payload.latencyMs)}ms</span>
-            <span>Tokens: in {String(payload.tokensIn)} / out {String(payload.tokensOut)}</span>
+            <span>Latency: {String(payload.latencyMs)} ms</span>
+            <span>Tokens: {String(payload.tokensIn)} in / {String(payload.tokensOut)} out</span>
             <span>Cost: ${Number(payload.costUsd).toFixed(5)}</span>
           </div>
         )}
 
         {event.type === "hard_limit_checked" && (
-          <div>
-            <span className="font-mono text-zinc-200">Rule: {String(payload.rule || "H1-H2")}</span>
+          <div className="font-mono text-[11px]">
+            <span className="text-zinc-200">Rule: {String(payload.rule || "H1-H2")}</span>
             <span className="ml-2 text-zinc-400">{String(payload.message || "")}</span>
           </div>
         )}
 
         {event.type === "restriction_applied" && (
-          <div className="text-amber-300 font-mono text-[10px]">
-            {JSON.stringify(payload.restriction)} (State Version: {String(payload.version)})
+          <div className="text-zinc-300 font-mono text-[10px]">
+            {JSON.stringify(payload.restriction)} (v{String(payload.version)})
           </div>
         )}
 
         {event.type === "action_executed" && (
-          <div className="text-emerald-400 font-mono">
+          <div className="text-emerald-400 font-mono text-[11px]">
             Tool executed successfully {payload.warning ? "(with warning)" : ""}.
           </div>
         )}
 
         {event.type === "action_held" && (
-          <div className="text-amber-300 font-mono">
+          <div className="text-amber-400 font-mono text-[11px]">
             {String(payload.message || payload.reason || "Action held for human authorization.")}
           </div>
         )}
 
         {event.type === "action_blocked" && (
-          <div className="text-crimson-400 font-mono">
+          <div className="text-rose-400 font-mono text-[11px]">
             {String(payload.message || payload.reason || "Action blocked.")}
           </div>
         )}
 
         {event.type === "run_frozen" && (
-          <div className="text-crimson-300 font-bold font-mono">
+          <div className="text-rose-300 font-bold font-mono text-[11px]">
             Run frozen. Human unfreeze required.
           </div>
         )}
 
         {event.type === "human_action" && (
-          <div className="text-indigo-300 font-semibold font-mono">
-            Action: {String(payload.action)} {payload.newVersion ? `(Version -> ${String(payload.newVersion)})` : ""}
+          <div className="text-zinc-200 font-mono text-[11px]">
+            Action: {String(payload.action)} {payload.newVersion ? `(v${String(payload.newVersion)})` : ""}
           </div>
         )}
       </div>
@@ -1116,7 +1062,7 @@ export default function ComparePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex-1 flex items-center justify-center p-12 text-zinc-400">
+        <div className="flex-1 flex items-center justify-center p-12 text-zinc-500 font-mono text-xs">
           Loading comparison dashboard...
         </div>
       }
