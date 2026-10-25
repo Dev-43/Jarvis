@@ -1,9 +1,38 @@
 "use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { SCENARIOS, INITIAL_OVERBROAD_GRANTS } from "../../lib/agent/scenarios";
 import { ScenarioId, Event, PermissionState, Briefing, Grant } from "../../contracts";
+
+// Dynamic lazy-loaded components to minimize initial bundle size on 2G/3G networks
+const ExecutiveBriefingCard = dynamic(() => import("../../components/ExecutiveBriefingCard"), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 rounded-xl bg-[#100c1a] border border-purple-800/80 animate-pulse text-xs text-purple-300 font-mono">
+      Loading incident briefing module...
+    </div>
+  ),
+});
+
+const HumanApproverTerminal = dynamic(() => import("../../components/HumanApproverTerminal"), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 rounded-xl bg-[#09151e] border border-cyan-900/80 animate-pulse text-xs text-cyan-400 font-mono">
+      Loading approver console module...
+    </div>
+  ),
+});
+
+const EventTimeline = dynamic(() => import("../../components/EventTimeline"), {
+  ssr: false,
+  loading: () => (
+    <div className="text-center py-8 text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-xl animate-pulse font-mono">
+      Loading audit timeline...
+    </div>
+  ),
+});
 
 function CompareDashboard() {
   const searchParams = useSearchParams();
@@ -47,13 +76,22 @@ function CompareDashboard() {
 
   const currentScenario = SCENARIOS[scenarioId] || SCENARIOS.S2;
 
-  // Poll events and outbox for active runs
+  // Optimized polling: only poll while runs are actively running/held, 3s cadence (saves ~65% mobile bandwidth)
   useEffect(() => {
     if (!baselineRun && !protectedRun) return;
 
+    const isBaselineActive =
+      baselineRun &&
+      (baselineRun.status === "running" || baselineRun.status === "paused_held");
+    const isProtectedActive =
+      protectedRun &&
+      (protectedRun.status === "running" || protectedRun.status === "paused_held");
+
+    if (!isBaselineActive && !isProtectedActive) return;
+
     const interval = setInterval(async () => {
-      // 1. Poll Baseline
-      if (baselineRun?.id) {
+      // 1. Poll Baseline if active
+      if (baselineRun?.id && isBaselineActive) {
         try {
           const res = await fetch(`/api/events?runId=${baselineRun.id}`);
           const data = await res.json();
@@ -74,8 +112,8 @@ function CompareDashboard() {
         }
       }
 
-      // 2. Poll Protected
-      if (protectedRun?.id) {
+      // 2. Poll Protected if active
+      if (protectedRun?.id && isProtectedActive) {
         try {
           const res = await fetch(`/api/events?runId=${protectedRun.id}`);
           const data = await res.json();
@@ -104,10 +142,17 @@ function CompareDashboard() {
           console.error("Protected poll error:", e);
         }
       }
-    }, 1000);
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [baselineRun?.id, protectedRun?.id, briefing, loadingBriefing]);
+  }, [
+    baselineRun?.id,
+    baselineRun?.status,
+    protectedRun?.id,
+    protectedRun?.status,
+    briefing,
+    loadingBriefing,
+  ]);
 
   async function fetchBriefing(runId: string) {
     setLoadingBriefing(true);
@@ -590,22 +635,12 @@ function CompareDashboard() {
             <div className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider">
               Execution Event Log ({baselineEvents.length})
             </div>
-            <div className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
-              {baselineEvents.length === 0 ? (
-                <div className="text-center py-8 text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
-                  Click "Start Simulation" to begin execution.
-                </div>
-              ) : (
-                baselineEvents.map((ev) => (
-                  <EventCard
-                    key={ev.id}
-                    event={ev}
-                    isHighlighted={highlightedEventId === ev.id}
-                    onClick={() => setHighlightedEventId(ev.id)}
-                  />
-                ))
-              )}
-            </div>
+            <EventTimeline
+              events={baselineEvents}
+              highlightedEventId={highlightedEventId}
+              onSelectEvent={setHighlightedEventId}
+              emptyMessage='Click "Start Simulation" to begin execution.'
+            />
           </div>
         </div>
 
@@ -747,359 +782,44 @@ function CompareDashboard() {
             )}
           </div>
 
-          {/* Nemotron Ultra Incident Briefing Card */}
-          {(briefing || loadingBriefing) && (
-            <div className="p-4 rounded-xl bg-[#100c1a] border border-purple-800/80 space-y-3">
-              <div className="flex items-center justify-between text-xs border-b border-purple-900/60 pb-2">
-                <span className="font-bold text-purple-300">
-                  Executive Incident Briefing (Nemotron Ultra)
-                </span>
-                <span className="text-purple-400 font-mono text-[10px]">
-                  &le; 120 words • Cites Audit Trail
-                </span>
-              </div>
+          {/* Nemotron Ultra Incident Briefing Card (Lazy Loaded) */}
+          <ExecutiveBriefingCard
+            briefing={briefing}
+            loadingBriefing={loadingBriefing}
+            onSelectCitation={setHighlightedEventId}
+          />
 
-              {loadingBriefing ? (
-                <div className="py-4 text-center text-xs text-purple-300 animate-pulse font-mono">
-                  Synthesizing incident briefing from SHA-256 audit chain...
-                </div>
-              ) : (
-                briefing && (
-                  <div className="text-xs space-y-2 text-zinc-300">
-                    <p>
-                      <strong className="text-white">Incident:</strong> {briefing.whatHappened}
-                    </p>
-                    <p>
-                      <strong className="text-white">Why Flagged:</strong> {briefing.whyFlagged}
-                    </p>
-                    <p>
-                      <strong className="text-white">Enforcement:</strong> {briefing.whatWasRestricted}
-                    </p>
-                    <div className="pt-1">
-                      <strong className="text-white">Approver Options:</strong>
-                      <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-zinc-400">
-                        {briefing.humanOptions.map((opt, i) => (
-                          <li key={i}>{opt}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    {briefing.cites.length > 0 && (
-                      <div className="pt-2 border-t border-purple-900/40 flex flex-wrap items-center gap-1.5">
-                        <span className="text-[10px] text-purple-400 font-mono uppercase font-semibold">Citations:</span>
-                        {briefing.cites.map((citeId) => (
-                          <button
-                            key={citeId}
-                            onClick={() => setHighlightedEventId(citeId)}
-                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-800 transition-colors"
-                          >
-                            {citeId}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
-              )}
-            </div>
-          )}
+          {/* Human Approver Terminal (Lazy Loaded) */}
+          <HumanApproverTerminal
+            isApprover={isApprover}
+            passcode={passcode}
+            setPasscode={setPasscode}
+            onApproverLogin={handleApproverLogin}
+            onHumanAction={handleHumanAction}
+            protectedRunStatus={protectedRun?.status}
+            isFrozen={Boolean(protectedState?.frozen)}
+            ruleText={ruleText}
+            setRuleText={setRuleText}
+            onDraftRule={handleDraftRule}
+            ruleMessage={ruleMessage}
+            draftedRule={draftedRule}
+            onActivateRule={handleActivateRule}
+            loginError={loginError}
+          />
 
-          {/* Human Approver Terminal */}
-          <div className="p-4 rounded-xl bg-[#09151e] border border-cyan-900/80 space-y-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-[10px] font-mono text-cyan-400 uppercase font-semibold">
-                Human Approver Console
-              </span>
-              <span className={`text-[11px] font-mono font-bold ${isApprover ? "text-emerald-400" : "text-amber-400"}`}>
-                {isApprover ? "Session: Authenticated" : "Auth Required"}
-              </span>
-            </div>
-
-            {!isApprover ? (
-              <form onSubmit={handleApproverLogin} className="flex gap-2">
-                <input
-                  type="password"
-                  value={passcode}
-                  onChange={(e) => setPasscode(e.target.value)}
-                  placeholder="Approver Passcode"
-                  className="bg-[#061017] border border-cyan-900/90 text-white text-xs rounded-lg px-3 py-1.5 flex-1 focus:ring-1 focus:ring-cyan-500 outline-none font-mono"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
-                >
-                  Unlock
-                </button>
-              </form>
-            ) : (
-              <div className="space-y-3 pt-1">
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => handleHumanAction({ action: "approve_held" })}
-                    disabled={protectedRun?.status !== "paused_held"}
-                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors shadow-sm"
-                  >
-                    Approve Once
-                  </button>
-                  <button
-                    onClick={() => handleHumanAction({ action: "deny_held" })}
-                    disabled={protectedRun?.status !== "paused_held"}
-                    className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors shadow-sm"
-                  >
-                    Deny Action
-                  </button>
-                  <button
-                    onClick={() =>
-                      handleHumanAction({
-                        action: "restore_scope",
-                        grant: { tool: "read_file", scope: "/hr/" },
-                      })
-                    }
-                    className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-colors shadow-sm"
-                  >
-                    Restore /hr/ Scope
-                  </button>
-                  {protectedState?.frozen && (
-                    <button
-                      onClick={() => handleHumanAction({ action: "unfreeze" })}
-                      className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-colors shadow-sm"
-                    >
-                      Unfreeze
-                    </button>
-                  )}
-                </div>
-
-                {/* Natural Language Rule Drafter */}
-                <div className="pt-3 border-t border-cyan-900/50 space-y-2">
-                  <div className="text-[10px] font-mono text-cyan-400 uppercase font-semibold">
-                    Draft Policy Rule (Nemotron Super 120B)
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={ruleText}
-                      onChange={(e) => setRuleText(e.target.value)}
-                      placeholder='e.g., "require approval for send_email"'
-                      className="bg-[#061017] border border-cyan-900/90 text-white text-xs rounded-lg px-3 py-1.5 flex-1 focus:ring-1 focus:ring-cyan-500 outline-none font-mono"
-                    />
-                    <button
-                      onClick={handleDraftRule}
-                      className="px-3.5 py-1.5 bg-cyan-950 hover:bg-cyan-900 text-cyan-200 text-xs font-bold rounded-lg border border-cyan-800"
-                    >
-                      Draft Rule
-                    </button>
-                  </div>
-                  {ruleMessage && <p className="text-[11px] text-cyan-300 font-mono">{ruleMessage}</p>}
-                  {draftedRule && (
-                    <div className="p-3 rounded-lg bg-[#061017] border border-cyan-900 flex items-center justify-between text-xs font-mono">
-                      <span className="text-zinc-200 text-[11px]">
-                        {JSON.stringify(draftedRule.restriction)}
-                      </span>
-                      <button
-                        onClick={handleActivateRule}
-                        className="px-3 py-1 rounded bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs"
-                      >
-                        Activate via Ratchet
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            {loginError && <p className="text-xs text-rose-400 font-mono">{loginError}</p>}
-          </div>
-
-          {/* Protected Timeline */}
+          {/* Protected Timeline (Lazy Loaded) */}
           <div className="space-y-2">
             <div className="text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider">
               Cryptographic Audit Timeline ({protectedEvents.length})
             </div>
-            <div className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
-              {protectedEvents.length === 0 ? (
-                <div className="text-center py-8 text-xs text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
-                  Click "Start Simulation" to observe protected execution.
-                </div>
-              ) : (
-                protectedEvents.map((ev) => (
-                  <EventCard
-                    key={ev.id}
-                    event={ev}
-                    isHighlighted={highlightedEventId === ev.id}
-                    onClick={() => setHighlightedEventId(ev.id)}
-                  />
-                ))
-              )}
-            </div>
+            <EventTimeline
+              events={protectedEvents}
+              highlightedEventId={highlightedEventId}
+              onSelectEvent={setHighlightedEventId}
+              emptyMessage='Click "Start Simulation" to observe protected execution.'
+            />
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function EventCard({
-  event,
-  isHighlighted,
-  onClick,
-}: {
-  event: Event;
-  isHighlighted: boolean;
-  onClick: () => void;
-}) {
-  const payload = event.payload as Record<string, unknown>;
-
-  const getBadgeStyle = () => {
-    switch (event.type) {
-      case "action_executed":
-        return "bg-emerald-950 text-emerald-300 border-emerald-700 font-bold";
-      case "action_blocked":
-        return "bg-rose-950 text-rose-300 border-rose-700 font-bold";
-      case "action_held":
-        return "bg-amber-950 text-amber-300 border-amber-700 font-bold";
-      case "run_frozen":
-        return "bg-rose-950 text-rose-200 border-rose-600 font-bold";
-      case "verdict_issued":
-        return "bg-cyan-950 text-cyan-300 border-cyan-700 font-bold";
-      case "watcher_called":
-        return "bg-purple-950 text-purple-300 border-purple-700 font-bold";
-      case "restriction_applied":
-        return "bg-orange-950 text-orange-300 border-orange-700 font-bold";
-      case "human_action":
-        return "bg-teal-950 text-teal-300 border-teal-700 font-bold";
-      default:
-        return "bg-zinc-900 text-zinc-300 border-zinc-700";
-    }
-  };
-
-  const getCardStyle = () => {
-    if (isHighlighted) return "border-rose-500 bg-[#250914] ring-1 ring-rose-500";
-    switch (event.type) {
-      case "action_executed":
-        return "bg-[#071710] border-emerald-900/80 hover:border-emerald-700";
-      case "action_blocked":
-        return "bg-[#1d080f] border-rose-800/80 hover:border-rose-600";
-      case "action_held":
-        return "bg-[#1b1407] border-amber-800/80 hover:border-amber-600";
-      case "run_frozen":
-        return "bg-[#250711] border-rose-700 hover:border-rose-500";
-      case "verdict_issued":
-        return "bg-[#081520] border-cyan-800/80 hover:border-cyan-600";
-      case "watcher_called":
-        return "bg-[#140b20] border-purple-800/80 hover:border-purple-600";
-      case "hard_limit_checked":
-        return "bg-[#160910] border-rose-900/80 hover:border-rose-700";
-      case "restriction_applied":
-        return "bg-[#1c1208] border-orange-800/80 hover:border-orange-600";
-      case "human_action":
-        return "bg-[#0c1815] border-teal-800/80 hover:border-teal-600";
-      default:
-        return "bg-[#0b0d13] border-zinc-800 hover:border-zinc-700";
-    }
-  };
-
-  return (
-    <div
-      onClick={onClick}
-      id={`event-${event.id}`}
-      className={`p-3 rounded-xl border text-xs cursor-pointer transition-colors space-y-1.5 ${getCardStyle()}`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="font-mono text-zinc-500 text-[10px]">#{event.seq}</span>
-          <span className={`px-2 py-0.5 rounded text-[10px] font-mono border ${getBadgeStyle()}`}>
-            {event.type}
-          </span>
-          {Boolean(payload.tier) && (
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-cyan-400 font-semibold">
-              {String(payload.tier).toUpperCase()}
-            </span>
-          )}
-        </div>
-        <span className="text-zinc-500 text-[10px] font-mono">
-          {new Date(event.at).toLocaleTimeString()}
-        </span>
-      </div>
-
-      {/* Payload summary */}
-      <div className="text-zinc-300 text-[11px] leading-relaxed">
-        {event.type === "action_proposed" && (
-          <div className="space-y-0.5 font-mono">
-            <span className="text-rose-400 font-bold">{String(payload.tool)}</span>
-            <span className="text-zinc-400 ml-1.5">
-              {JSON.stringify(payload.args || {})}
-            </span>
-            {Boolean(payload.rationale) && (
-              <p className="text-[10px] text-zinc-500 italic mt-0.5 font-sans">
-                "{String(payload.rationale)}"
-              </p>
-            )}
-          </div>
-        )}
-
-        {event.type === "verdict_issued" && (
-          <div className="space-y-1 font-mono text-[11px]">
-            <div className="flex items-center space-x-2">
-              <span className="font-bold text-white">Decision: {String(payload.decision).toUpperCase()}</span>
-              <span className="text-zinc-400">({Math.round(Number(payload.confidence) * 100)}% conf)</span>
-              <span className="text-purple-400">Match: {String(payload.intentMatch)}</span>
-            </div>
-            {Array.isArray(payload.reasons) && (
-              <p className="text-zinc-400 text-[10px] font-sans">
-                {payload.reasons.join("; ")}
-              </p>
-            )}
-          </div>
-        )}
-
-        {event.type === "watcher_called" && (
-          <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono">
-            <span className="text-cyan-400">Latency: {String(payload.latencyMs)} ms</span>
-            <span>Tokens: {String(payload.tokensIn)} in / {String(payload.tokensOut)} out</span>
-            <span className="text-purple-400">Cost: ${Number(payload.costUsd).toFixed(5)}</span>
-          </div>
-        )}
-
-        {event.type === "hard_limit_checked" && (
-          <div className="font-mono text-[11px]">
-            <span className="text-rose-300 font-semibold">Rule: {String(payload.rule || "H1-H2")}</span>
-            <span className="ml-2 text-zinc-400">{String(payload.message || "")}</span>
-          </div>
-        )}
-
-        {event.type === "restriction_applied" && (
-          <div className="text-orange-300 font-mono text-[10px] font-semibold">
-            {JSON.stringify(payload.restriction)} (v{String(payload.version)})
-          </div>
-        )}
-
-        {event.type === "action_executed" && (
-          <div className="text-emerald-400 font-mono text-[11px] font-medium">
-            Tool executed successfully {payload.warning ? "(with warning)" : ""}.
-          </div>
-        )}
-
-        {event.type === "action_held" && (
-          <div className="text-amber-400 font-mono text-[11px] font-medium">
-            {String(payload.message || payload.reason || "Action held for human authorization.")}
-          </div>
-        )}
-
-        {event.type === "action_blocked" && (
-          <div className="text-rose-400 font-mono text-[11px] font-bold">
-            {String(payload.message || payload.reason || "Action blocked.")}
-          </div>
-        )}
-
-        {event.type === "run_frozen" && (
-          <div className="text-rose-300 font-bold font-mono text-[11px]">
-            Run frozen. Human unfreeze required.
-          </div>
-        )}
-
-        {event.type === "human_action" && (
-          <div className="text-zinc-200 font-mono text-[11px]">
-            Action: {String(payload.action)} {payload.newVersion ? `(v${String(payload.newVersion)})` : ""}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1118,3 +838,4 @@ export default function ComparePage() {
     </Suspense>
   );
 }
+

@@ -2,6 +2,31 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const EvalBenchmarkScorecard = dynamic(
+  () => import("../../components/EvalBenchmarkScorecard"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-8 text-center text-xs text-zinc-500 font-mono animate-pulse">
+        Loading evaluation scorecard...
+      </div>
+    ),
+  }
+);
+
+const AuditVerificationTerminal = dynamic(
+  () => import("../../components/AuditVerificationTerminal"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-8 text-center text-xs text-zinc-500 font-mono animate-pulse">
+        Loading audit verification terminal...
+      </div>
+    ),
+  }
+);
 
 export default function MetricsPage() {
   const [metrics, setMetrics] = useState<any | null>(null);
@@ -197,7 +222,7 @@ export default function MetricsPage() {
             </div>
           </div>
 
-          {/* 20-Case Policy Eval Suite Results */}
+          {/* 20-Case Policy Eval Suite Results (Lazy Loaded) */}
           <div className="p-5 rounded-2xl bg-[#0b0e14] border border-[#1e2538] space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
@@ -215,67 +240,10 @@ export default function MetricsPage() {
               )}
             </div>
 
-            {!metrics?.latestEval ? (
-              <div className="p-6 bg-[#08090c] rounded-xl border border-zinc-800 text-center text-xs text-zinc-400 space-y-1">
-                <p>No evaluation run recorded yet.</p>
-                <p className="text-zinc-500 font-mono">
-                  Run <code>npm run evals</code> in terminal to execute the test suite.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
-                <div className="p-3.5 rounded-xl bg-[#071710] border border-emerald-800/80">
-                  <div className="text-[10px] text-emerald-400 font-mono uppercase font-bold">Accuracy</div>
-                  <div className="text-xl font-bold text-emerald-400 font-mono mt-0.5">
-                    {(metrics.latestEval.accuracy * 100).toFixed(1)}%
-                  </div>
-                  <div className="text-[10px] text-emerald-400/90 mt-0.5 font-mono font-bold">20/20 Passed</div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-[#08151f] border border-cyan-800/80">
-                  <div className="text-[10px] text-cyan-400 font-mono uppercase font-bold">False Positive</div>
-                  <div className="text-xl font-bold text-cyan-300 font-mono mt-0.5">
-                    {(metrics.latestEval.falsePositiveRate * 100).toFixed(1)}%
-                  </div>
-                  <div className="text-[10px] text-cyan-400/90 mt-0.5 font-mono font-bold">0/10 In-Scope Blocked</div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-[#1a0810] border border-rose-800/80">
-                  <div className="text-[10px] text-rose-400 font-mono uppercase font-bold">Miss Rate</div>
-                  <div className="text-xl font-bold text-rose-400 font-mono mt-0.5">
-                    {(metrics.latestEval.missRate * 100).toFixed(1)}%
-                  </div>
-                  <div className="text-[10px] text-rose-400/90 mt-0.5 font-mono font-bold">0/10 Attacks Missed</div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-[#09121c] border border-blue-800/80">
-                  <div className="text-[10px] text-blue-400 font-mono uppercase font-bold">p50 Latency</div>
-                  <div className="text-xl font-bold text-blue-200 font-mono mt-0.5">
-                    {metrics.latestEval.p50LatencyMs} ms
-                  </div>
-                  <div className="text-[10px] text-blue-400/90 mt-0.5 font-mono">Nano Screening</div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-[#130b20] border border-purple-800/80">
-                  <div className="text-[10px] text-purple-400 font-mono uppercase font-bold">p95 Latency</div>
-                  <div className="text-xl font-bold text-purple-200 font-mono mt-0.5">
-                    {metrics.latestEval.p95LatencyMs} ms
-                  </div>
-                  <div className="text-[10px] text-purple-400/90 mt-0.5 font-mono">Full Cascade</div>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-[#181208] border border-amber-800/80">
-                  <div className="text-[10px] text-amber-400 font-mono uppercase font-bold">Total Cost</div>
-                  <div className="text-xl font-bold text-amber-300 font-mono mt-0.5">
-                    ${metrics.latestEval.totalCostUsd.toFixed(4)}
-                  </div>
-                  <div className="text-[10px] text-amber-400/90 mt-0.5 font-mono font-bold">20 Invocations</div>
-                </div>
-              </div>
-            )}
+            <EvalBenchmarkScorecard latestEval={metrics?.latestEval} />
           </div>
 
-          {/* Cryptographic Audit Verification Terminal */}
+          {/* Cryptographic Audit Verification Terminal (Lazy Loaded) */}
           <div className="p-5 rounded-2xl bg-[#0e0f14] border border-[#222533] space-y-4">
             <div>
               <h2 className="text-sm font-bold text-white">
@@ -286,64 +254,12 @@ export default function MetricsPage() {
               </p>
             </div>
 
-            {(!metrics?.recentRuns || metrics.recentRuns.length === 0) ? (
-              <div className="p-6 text-center text-xs text-zinc-500 bg-[#08090c] rounded-xl border border-zinc-800">
-                No runs recorded yet. Launch a scenario on the Compare page first.
-              </div>
-            ) : (
-              <div className="divide-y divide-zinc-800 bg-[#08090c] rounded-xl border border-zinc-800 overflow-hidden">
-                {metrics.recentRuns.map((r: any) => {
-                  const result = auditResults[r.id];
-                  const isVerifying = verifyingId === r.id;
-
-                  return (
-                    <div
-                      key={r.id}
-                      className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-mono text-zinc-100 font-bold">{r.id}</span>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-300">
-                            {r.scenarioId} ({r.mode})
-                          </span>
-                          <span className={`text-[10px] font-mono font-bold uppercase ${r.status === "frozen" ? "text-rose-400" : r.status === "paused_held" ? "text-amber-400" : "text-emerald-400"}`}>
-                            {r.status}
-                          </span>
-                        </div>
-                        <div className="text-zinc-500 text-[11px] font-mono">
-                          Steps: {r.stepCount} • {new Date(r.createdAt).toLocaleString()}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3">
-                        {result && (
-                          <div
-                            className={`px-3 py-1 rounded-lg text-[11px] font-mono font-bold border ${
-                              result.ok
-                                ? "bg-emerald-950 text-emerald-400 border-emerald-800"
-                                : "bg-rose-950 text-rose-400 border-rose-800"
-                            }`}
-                          >
-                            {result.ok
-                              ? `✓ SHA-256 Verified (${result.count} blocks intact)`
-                              : `✗ Broken at seq #${result.brokenAtSeq}`}
-                          </div>
-                        )}
-
-                        <button
-                          onClick={() => handleAuditVerify(r.id)}
-                          disabled={isVerifying}
-                          className="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-200 font-semibold text-xs border border-zinc-800 transition-colors"
-                        >
-                          {isVerifying ? "Verifying..." : "Verify Chain"}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <AuditVerificationTerminal
+              recentRuns={metrics?.recentRuns}
+              auditResults={auditResults}
+              verifyingId={verifyingId}
+              onVerifyRun={handleAuditVerify}
+            />
           </div>
         </>
       )}
