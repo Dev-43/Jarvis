@@ -9,8 +9,8 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed": "tsx prisma/seed.ts",
-    "evals": "tsx evals/run-evals.ts",
+    "seed": "tsx --env-file=.env prisma/seed.ts",
+    "evals": "tsx --env-file=.env evals/run-evals.ts",
     "db:push": "prisma db push",
     "db:generate": "prisma generate"
   },
