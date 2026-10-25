@@ -312,14 +312,14 @@ export async function gatewayCall(input: GatewayCallInput): Promise<GatewayCallR
     }
 
     const verdictEv = await appendEvent(runId, "verdict_issued", {
-      decision: verdict.decision,
-      intentMatch: verdict.intentMatch,
-      confidence: verdict.confidence,
-      reasons: verdict.reasons,
-      evidence: verdict.evidence,
-      restrictionsCount: verdict.restrictions.length,
-      tier: verdict.tier,
-      model: verdict.model,
+      decision: watcherResult.verdict.decision,
+      intentMatch: watcherResult.verdict.intentMatch,
+      confidence: watcherResult.verdict.confidence,
+      reasons: watcherResult.verdict.reasons,
+      evidence: watcherResult.verdict.evidence,
+      restrictionsCount: watcherResult.verdict.restrictions.length,
+      tier: watcherResult.verdict.tier,
+      model: watcherResult.verdict.model,
     });
     eventIds.push(verdictEv.id);
   } catch (err: unknown) {
@@ -360,6 +360,10 @@ export async function gatewayCall(input: GatewayCallInput): Promise<GatewayCallR
       };
     }
     throw err;
+  }
+
+  if (!verdict) {
+    throw new Error("Unexpected state: Watcher verdict was not produced.");
   }
 
   // Step 4: Apply verdict

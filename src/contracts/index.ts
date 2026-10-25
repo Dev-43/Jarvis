@@ -122,7 +122,7 @@ export type AgentAction = z.infer<typeof AgentActionSchema>;
 export const AgentModelStepSchema = z.object({
   thought: z.string(),
   tool: z.union([ToolNameSchema, z.literal("finish")]),
-  args: z.record(z.unknown()).default({}),
+  args: z.record(z.unknown()),
   rationale: z.string(),
 });
 export type AgentModelStep = z.infer<typeof AgentModelStepSchema>;
