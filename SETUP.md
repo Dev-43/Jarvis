@@ -1,4 +1,4 @@
-# SETUP.md — Accounts, Keys and First Deploy (Warden, solo)
+# SETUP.md — Accounts, Keys and First Deploy (Taut, solo)
 
 > Do these in order on Oct 25 (tasks T1 and T3 in BUILD_solo-tasks.md). Everything here is free except Token Factory usage, which is paid from the hackathon credits. Time needed: about 2 hours.
 
@@ -24,10 +24,10 @@
 ## Part 2: GitHub, Neon, Vercel (45 minutes)
 
 **GitHub**
-1. Create a new **public** repo named `warden`. Choose the **MIT** license in the creation form. Add a `.gitignore` for Node that also ignores `.env`, `.env.local` and `.env*.local`.
+1. Create a new **public** repo named `taut`. Choose the **MIT** license in the creation form. Add a `.gitignore` for Node that also ignores `.env`, `.env.local` and `.env*.local`.
 
 **Neon (database)**
-1. Create a free account at neon.com (no card). Create one project named `warden`.
+1. Create a free account at neon.com (no card). Create one project named `taut`.
 2. Pick the region that matches your Vercel functions region (check Vercel project settings, Functions region, after the Vercel steps; US East is the usual default). If they differ, change Neon's region now, before any data exists.
 3. From the connection details copy two strings:
    - the **pooled** connection string (host contains `-pooler`) → `DATABASE_URL`
@@ -35,7 +35,7 @@
 
 **Vercel**
 1. Create a free account at vercel.com (Hobby plan; personal, non-commercial use).
-2. Import the GitHub repo `warden` as a new project (framework: Next.js).
+2. Import the GitHub repo `taut` as a new project (framework: Next.js).
 3. Do not deploy an empty repo; first complete Part 3 locally, then deploy.
 4. In the Vercel project settings open **Environment Variables** and add every variable in the table below for **Production** and **Preview**.
 
@@ -57,7 +57,7 @@
 | `APPROVER_PASSCODE` | A short passphrase. It goes in the Devpost testing instructions, so do not reuse a real password. |
 | `SESSION_SECRET` | A random 64-character hex string (`openssl rand -hex 32`, or any password generator) |
 | `DEMO_AGENT_KEY` | Another random string, different from `SESSION_SECRET` (only needed for the P2 external endpoint) |
-| `NEXT_PUBLIC_APP_NAME` | `Warden` |
+| `NEXT_PUBLIC_APP_NAME` | `Taut` |
 
 4. Security rule: only `NEXT_PUBLIC_APP_NAME` may start with `NEXT_PUBLIC_`. Every other variable is server-only; never reference them in client components.
 5. After task T4, push the schema once with `npm run db:push`; after task T8, run `npm run seed`.

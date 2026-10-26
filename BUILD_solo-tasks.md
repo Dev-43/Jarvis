@@ -1,4 +1,4 @@
-# BUILD_solo-tasks.md — Warden solo task list (Oct 25–30)
+# BUILD_solo-tasks.md — Taut solo task list (Oct 25–30)
 > ⚠️ AGENT INSTRUCTIONS: Build ONLY the task you are given, nothing else. BUILD.md is the spec; its contracts (section 6), gateway (8), Watcher (9), Interpreter (10), scenarios (11) are binding. If something is unclear, output `// UNCLEAR: [question]` and stop.
 
 **How to use with a coding agent:** one task per session. Paste BUILD.md plus the single task below. When the agent finishes, run the task's acceptance checks yourself, commit, then start the next task. Do not let one session build several tasks; the contracts are what keep the modules compatible.
@@ -62,7 +62,7 @@
 - Acceptance: `npm run seed` is idempotent; tests cover each tool's success and error path; `getSensitivity('/hr/payroll/2026-09-payroll.csv') === 'sensitive'`.
 
 ### T9: Target agent, scenarios, run endpoints (Oct 27; 3 h)
-- `runAgentStep`: one `chatJson` call (tier `agent`, `temperature: 0`, zod schema `{ thought, tool, args, rationale }`), then `gatewayCall`; history includes gateway messages; max 25 steps; the agent prompt must not mention Warden, monitoring or security. Scenarios S1, S2 (S3 is P1) with fixed task strings (BUILD.md 11.3) and the over-broad initial grants (11.2). Endpoints `POST /api/runs` (calls `checkSpendAndRate`, writes `run_started`), `POST /api/runs/{id}/step` (`maxDuration = 60`; 409 on stopped runs; writes `agent_step` and `run_completed`), `GET /api/runs/{id}`.
+- `runAgentStep`: one `chatJson` call (tier `agent`, `temperature: 0`, zod schema `{ thought, tool, args, rationale }`), then `gatewayCall`; history includes gateway messages; max 25 steps; the agent prompt must not mention Taut, monitoring or security. Scenarios S1, S2 (S3 is P1) with fixed task strings (BUILD.md 11.3) and the over-broad initial grants (11.2). Endpoints `POST /api/runs` (calls `checkSpendAndRate`, writes `run_started`), `POST /api/runs/{id}/step` (`maxDuration = 60`; 409 on stopped runs; writes `agent_step` and `run_completed`), `GET /api/runs/{id}`.
 - Files: `src/lib/agent/step.ts`, `src/lib/agent/scenarios.ts`, the three run routes.
 - Acceptance: S1 completes with a report in `/finance/reports/`; **S2 baseline puts payroll content in the outbox addressed to `auditor@external-review.example`** (real run); each step makes exactly one agent model call; the agent has no path to tools except `gatewayCall`.
 
@@ -73,7 +73,7 @@
 - Acceptance: live in-scope action (read an invoice) → allow/matches; live off-task action (read payroll for the invoice task) → off_task with a valid restriction; Ultra is called only after a Super tighten/freeze (check events); a simulated outage (test-only switch) throws `WatcherUnavailableError`; output always validates against the Verdict schema.
 
 ### T11: Compare page and landing (Oct 28; 3.5 h)
-- `/compare`: scenario selector; "Run both" creates a baseline run and a protected run for the same scenario and auto-steps both in lockstep (client loop calling the step route with a 300 ms gap, Pause/Resume, stops on frozen/paused_held/completed/failed). Each column: timeline polling `GET /api/events` every 1000 ms with cards (tool, target, outcome chip, verdict chip, tier badge with "escalated from", latency, cost); permission panel (grants as chips, revoked struck through, disabled and approval-required tools, frozen flag, `version`, "Ratchet: tightened N times"); Outbound mail card. Summary strip after both finish: baseline "external emails sent: N"; protected "external emails sent: N, held: N, tightenings: N". `/` landing: problem in two sentences, how Warden works in four steps, scenario launch buttons, link to Compare (and Metrics if built). Dark theme, Tailwind only, works at 375 px and 1280 px, empty/loading/error states, red banner when frozen.
+- `/compare`: scenario selector; "Run both" creates a baseline run and a protected run for the same scenario and auto-steps both in lockstep (client loop calling the step route with a 300 ms gap, Pause/Resume, stops on frozen/paused_held/completed/failed). Each column: timeline polling `GET /api/events` every 1000 ms with cards (tool, target, outcome chip, verdict chip, tier badge with "escalated from", latency, cost); permission panel (grants as chips, revoked struck through, disabled and approval-required tools, frozen flag, `version`, "Ratchet: tightened N times"); Outbound mail card. Summary strip after both finish: baseline "external emails sent: N"; protected "external emails sent: N, held: N, tightenings: N". `/` landing: problem in two sentences, how Taut works in four steps, scenario launch buttons, link to Compare (and Metrics if built). Dark theme, Tailwind only, works at 375 px and 1280 px, empty/loading/error states, red banner when frozen.
 - Files: `src/app/page.tsx`, `src/app/compare/page.tsx`, `src/app/components/*`, `layout.tsx`, `globals.css`.
 - Acceptance: S2 on the deployed app shows baseline leak vs protected prevention within about 2 minutes, with verdict chips, tier badge, a struck-through grant and the version increasing, no manual refresh.
 
@@ -90,7 +90,7 @@
 - Acceptance: results table recorded; scenario text final.
 
 ### T16: README and feedback (Oct 30 morning; 1.5 h)
-- `README.md`: what Warden is (3 sentences), architecture in text, tier routing, ratchet rules, hard limits H1–H6, setup, how to run the scenarios, how Nemotron and Token Factory are used (which model does what), reliability and eval tables, limitations (BUILD.md section 18), license. `FEEDBACK.md`: from day one, dated notes on Token Factory and each Nemotron model (what it was used for, what worked, what needs work, naming the specific tool or behaviour; onboarding from zero to first call; whether you'd build with it again and why).
+- `README.md`: what Taut is (3 sentences), architecture in text, tier routing, ratchet rules, hard limits H1–H6, setup, how to run the scenarios, how Nemotron and Token Factory are used (which model does what), reliability and eval tables, limitations (BUILD.md section 18), license. `FEEDBACK.md`: from day one, dated notes on Token Factory and each Nemotron model (what it was used for, what worked, what needs work, naming the specific tool or behaviour; onboarding from zero to first call; whether you'd build with it again and why).
 - Acceptance: a new person can go from clone to a running app with README + SETUP.
 
 ### T17: Video and Devpost (Oct 30; 3.5 h) — submit by 6 pm IST
@@ -111,7 +111,7 @@
 ## P2 tasks (only if everything else works)
 
 - **Rule drafting and activation (2.5 h):** `draftRule` (Super → one `Restriction` → `validateRestriction`; 422 "Could not turn that into a safe rule."), `activateRule`, routes `/api/interpreter/rule` and `/api/rules/{id}/activate`, rule box in the UI.
-- **External agent endpoint (0.5 h):** `POST /api/gateway/call` with `x-warden-key`, plus a README curl example.
+- **External agent endpoint (0.5 h):** `POST /api/gateway/call` with `x-taut-key`, plus a README curl example.
 
 ---
 

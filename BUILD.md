@@ -1,17 +1,17 @@
-# BUILD.md — Warden (solo build)
+# BUILD.md — Taut (solo build)
 > ⚠️ AGENT INSTRUCTIONS: Build ONLY what is listed here. Do not add features, do not infer requirements, do not improve on the spec. If something is unclear, output a comment `// UNCLEAR: [question]` and stop. Do not proceed past unclear points.
 
 ---
 
 ## 1. Project Overview
 
-**Warden** is an independent oversight layer for autonomous AI agents. An agent never touches company tools directly: every tool call goes through Warden's **Gateway**, which (1) applies deterministic hard limits, (2) asks the **Watcher** (NVIDIA Nemotron on Nebius Token Factory) whether the action matches the agent's declared task, (3) applies the verdict through a **one-way ratchet** (permissions can only shrink), and (4) records a hash-chained audit trail. The **Interpreter** (also Nemotron) briefs humans in plain language and drafts tighten-only rules. Only a human, through an authenticated endpoint, can widen permissions again.
+**Taut** is an independent oversight layer for autonomous AI agents. An agent never touches company tools directly: every tool call goes through Taut's **Gateway**, which (1) applies deterministic hard limits, (2) asks the **Watcher** (NVIDIA Nemotron on Nebius Token Factory) whether the action matches the agent's declared task, (3) applies the verdict through a **one-way ratchet** (permissions can only shrink), and (4) records a hash-chained audit trail. The **Interpreter** (also Nemotron) briefs humans in plain language and drafts tighten-only rules. Only a human, through an authenticated endpoint, can widen permissions again.
 
 **Core claim (the pitch):** permission rules cannot see an over-permissioned agent drifting off task. The Watcher can, and it can only make the agent safer, never freer. Deterministic code, not the AI, holds the final lever.
 
 **Hackathon:** Nebius x NVIDIA Global AI Hackathon (Devpost). **Track: Best Apps & Agents.** Deadline: Oct 30, 2026, 10:00 am PT (= 10:30 pm IST). **Team: 1 person (solo), building with a coding agent from these files.**
 
-**Working names (do not rename in code):** Project = Warden. Overseer = Watcher. Briefing/rule assistant = Interpreter. Permission mechanism = Ratchet. Entry point = Gateway.
+**Working names (do not rename in code):** Project = Taut. Overseer = Watcher. Briefing/rule assistant = Interpreter. Permission mechanism = Ratchet. Entry point = Gateway.
 
 ---
 
@@ -90,7 +90,7 @@ All types live in `src/contracts/index.ts` as zod schemas with inferred TS types
 - `ToolName`: `list_files` | `read_file` | `write_file` | `query_invoices` | `send_email`
 - `Tier`: `nano` | `super` | `ultra`
 - `Sensitivity`: `public` | `internal` | `sensitive`
-- `Mode`: `baseline` (permissions-only, the control group) | `protected` (full Warden)
+- `Mode`: `baseline` (permissions-only, the control group) | `protected` (full Taut)
 - `RunStatus`: `created` | `running` | `paused_held` | `frozen` | `completed` | `failed`
 - `Outcome`: `executed` | `held` | `blocked` | `frozen`
 
@@ -180,7 +180,7 @@ Priority: **P0** must ship, **P1** should ship, **P2** only if everything else w
 | `POST /api/interpreter/brief` | P0 | `{ runId }` | `{ briefing: Briefing }` (cached per incident) | none |
 | `GET /api/audit/verify` | P1 | query `runId` | `{ ok: boolean, brokenAtSeq: int \| null, count: int }` | none |
 | `GET /api/metrics` | P1 | — | aggregates from Events + SpendLedger: calls per tier, latency p50/p95 per tier, total cost, holds/tightens/freezes count, latest eval results | none |
-| `POST /api/gateway/call` | P2 | `GatewayCallInput` | `GatewayCallResult` (thin wrapper over `gatewayCall`, lets any external agent use Warden) | header `x-warden-key` = `DEMO_AGENT_KEY` |
+| `POST /api/gateway/call` | P2 | `GatewayCallInput` | `GatewayCallResult` (thin wrapper over `gatewayCall`, lets any external agent use Taut) | header `x-taut-key` = `DEMO_AGENT_KEY` |
 | `POST /api/interpreter/rule` | P2 | `{ runId, text }` | `{ rule: Rule }` (draft; 422 if text cannot be turned into a valid tightening) | none |
 | `POST /api/rules/{id}/activate` | P2 | `{}` | `{ rule: Rule, permissionState }` | approver cookie |
 
@@ -282,7 +282,7 @@ One builder working with a coding agent. This file is the spec; build in the tas
 ## 13. File Structure (root; no other files or folders)
 
 ```
-warden/
+taut/
 ├── README.md
 ├── FEEDBACK.md                    (running log from day one)
 ├── SETUP.md
@@ -343,7 +343,7 @@ There is no separate per-run page: the compare page shows each run's full timeli
 | `APPROVER_PASSCODE` | human approver passcode (put in Devpost testing instructions) |
 | `SESSION_SECRET` | HMAC key for the approver cookie and IP hashing |
 | `DEMO_AGENT_KEY` | key for `/api/gateway/call` (P2) |
-| `NEXT_PUBLIC_APP_NAME` | "Warden" |
+| `NEXT_PUBLIC_APP_NAME` | "Taut" |
 
 ---
 
@@ -398,7 +398,7 @@ There is no separate per-run page: the compare page shows each run's full timeli
 
 ## 18. Known Limitations (state honestly in README)
 
-- Warden judges actions it sees; it does not prove behaviour (no sandbox) and does not replace OS-level isolation.
+- Taut judges actions it sees; it does not prove behaviour (no sandbox) and does not replace OS-level isolation.
 - The Watcher is probabilistic and can miss things; that is why hard limits and the ratchet exist and why the Watcher can only tighten.
 - Mock company data is synthetic; `send_email` records to an outbox and sends nothing.
 - Latency depends on Token Factory response times; measured numbers are reported in `/metrics`.

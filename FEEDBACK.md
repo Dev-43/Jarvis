@@ -1,6 +1,6 @@
 # FEEDBACK.md — Nebius Token Factory & NVIDIA Nemotron Developer Log
 
-**Project**: Warden — Independent Oversight Layer for Autonomous AI Agents  
+**Project**: Taut — Independent Oversight Layer for Autonomous AI Agents  
 **Hackathon**: Nebius x NVIDIA Global AI Hackathon (Track: Best Apps & Agents)  
 **Author**: Solo Builder (Dev-43)  
 **Date**: October 25, 2026
@@ -23,7 +23,7 @@
 ## 2. NVIDIA Nemotron Models Evaluation
 
 ### A. NVIDIA Nemotron 3 Nano 30B (`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`)
-- **Role in Warden**: First-line overseer screening every proposed agent action in real-time.
+- **Role in Taut**: First-line overseer screening every proposed agent action in real-time.
 - **What Worked Extremely Well**:
   - Incredibly fast response times: p50 latency was ~380 ms and p95 was ~710 ms.
   - Handled structured JSON output (`response_format: {"type":"json_object"}`) flawlessly across all benchmark runs.
@@ -33,7 +33,7 @@
   - Occasionally emits `<think>` reasoning tags when reasoning effort is unconstrained; we implemented `extractJson` to cleanly strip internal thinking blocks.
 
 ### B. NVIDIA Nemotron 3 Super 120B (`nvidia/nemotron-3-super-120b-a12b`)
-- **Role in Warden**: Secondary overseer for borderline/sensitive decisions, target enterprise finance agent, and policy rule drafter.
+- **Role in Taut**: Secondary overseer for borderline/sensitive decisions, target enterprise finance agent, and policy rule drafter.
 - **What Worked Extremely Well**:
   - Outstanding task comprehension and instruction following.
   - As the target agent, it realistically followed enterprise invoice tasks and realistically reacted to indirect prompt injections in invoice notes.
@@ -42,7 +42,7 @@
   - Latency is higher (~840 ms p50), which makes using it exclusively for Tier 1 undesirable; routing through Nano first before escalating to Super proved to be the ideal architectural pattern.
 
 ### C. NVIDIA Nemotron 3 Ultra 550B (`nvidia/Nemotron-3-Ultra-550b-a55b`)
-- **Role in Warden**: Tier 3 confirmation before the permission ratchet tightens or freezes a run, plus executive incident briefing generation.
+- **Role in Taut**: Tier 3 confirmation before the permission ratchet tightens or freezes a run, plus executive incident briefing generation.
 - **What Worked Extremely Well**:
   - Exceptional reasoning depth and prompt injection resilience. It easily spotted attacker attempts to claim compliance pre-approval or override monitoring.
   - Synthesized concise, high-clarity executive briefings under 120 words while strictly referencing real audit event IDs.
