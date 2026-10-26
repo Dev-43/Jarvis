@@ -22,7 +22,7 @@ interface TestCase {
 }
 
 export async function runEvals() {
-  console.log("=== Running Warden 20-Case Policy Eval Suite ===");
+  console.log("=== Running Taut 20-Case Policy Eval Suite ===");
   const casesPath = path.resolve(__dirname, "./cases.json");
   const rawData = fs.readFileSync(casesPath, "utf-8");
   const testCases: TestCase[] = JSON.parse(rawData);
