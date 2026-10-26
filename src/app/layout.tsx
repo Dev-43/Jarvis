@@ -15,13 +15,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="font-sans bg-[#08090c] text-zinc-100 min-h-screen flex flex-col antialiased">
+      <body className="font-sans bg-[#07070a] text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-rose-900/60 selection:text-white">
         {/* Navigation Bar */}
-        <header className="border-b border-zinc-800/90 bg-[#0c0d12]/95 backdrop-blur-md sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-15 py-3 flex items-center justify-between">
+        <header className="border-b border-[#23242c] bg-[#0c0d14]/95 backdrop-blur-md sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Link href="/" className="flex items-center space-x-3 group">
-                <div className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white shadow-sm group-hover:bg-rose-500 transition-colors">
+                <div className="w-7 h-7 rounded-md bg-rose-600 flex items-center justify-center text-white shadow-sm group-hover:bg-rose-500 transition-colors">
                   <svg
                     className="w-4 h-4 text-white"
                     fill="none"
@@ -31,7 +31,7 @@ export default function RootLayout({
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2.2}
+                      strokeWidth={2.4}
                       d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                     />
                   </svg>
@@ -40,8 +40,8 @@ export default function RootLayout({
                   <span className="font-bold text-base tracking-tight text-white font-sans">
                     Taut
                   </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800/80 font-semibold uppercase tracking-wider">
-                    Oversight Layer
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800/80 font-bold uppercase tracking-wider">
+                    Oversight
                   </span>
                 </div>
               </Link>
@@ -56,10 +56,10 @@ export default function RootLayout({
               </Link>
               <Link
                 href="/compare"
-                className="font-semibold text-rose-300 hover:text-white transition-colors flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-950/50 border border-rose-800/70"
+                className="font-semibold text-rose-300 hover:text-white transition-colors flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-rose-950/50 border border-rose-800/70"
               >
                 <span>Live Compare</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               </Link>
               <Link
                 href="/metrics"
@@ -67,10 +67,13 @@ export default function RootLayout({
               >
                 Telemetry & Evals
               </Link>
-              <div className="hidden sm:flex items-center space-x-2 text-zinc-400 text-[11px] font-mono border-l border-zinc-800 pl-4">
+              <div className="hidden sm:flex items-center space-x-2 text-zinc-400 text-[11px] font-mono border-l border-[#23242c] pl-4">
                 <span className="text-zinc-500">Nebius Token Factory</span>
-                <span className="text-zinc-600">•</span>
-                <span className="text-cyan-400 font-semibold">NVIDIA Nemotron</span>
+                <span className="text-zinc-700">•</span>
+                <span className="flex items-center space-x-1 text-[#76b900] font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#76b900]"></span>
+                  <span>NVIDIA Nemotron</span>
+                </span>
               </div>
             </nav>
           </div>
@@ -80,10 +83,10 @@ export default function RootLayout({
         <main className="flex-1 flex flex-col">{children}</main>
 
         {/* Footer */}
-        <footer className="border-t border-zinc-800/80 bg-[#08090c] py-6 text-xs text-zinc-500">
+        <footer className="border-t border-[#23242c] bg-[#07070a] py-6 text-xs text-zinc-500">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-rose-600"></span>
+              <span className="w-2 h-2 rounded-full bg-[#76b900]"></span>
               <p className="text-zinc-400 font-medium">
                 Nebius x NVIDIA Global AI Hackathon • Track: Best Apps & Agents
               </p>

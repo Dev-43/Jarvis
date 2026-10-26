@@ -368,14 +368,14 @@ function CompareDashboard() {
   return (
     <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Top Header Card */}
-      <div className="p-6 rounded-2xl bg-[#0e0f14] border border-[#222533] space-y-5">
+      <div className="p-6 rounded-2xl bg-[#0c0d14] border border-[#23242c] space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-3">
               <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                 Live Execution Comparison
               </h1>
-              <span className="text-[11px] font-mono px-2.5 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800/80 font-semibold uppercase">
+              <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800/80 font-bold uppercase tracking-wider">
                 Lockstep Mode
               </span>
             </div>
@@ -386,46 +386,49 @@ function CompareDashboard() {
 
           {/* Scenario Selector & Run Controls */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="inline-flex rounded-xl bg-[#08090c] p-1 border border-zinc-800">
+            <div className="inline-flex rounded-xl bg-[#07070a] p-1 border border-[#23242c]">
               <button
                 disabled={isRunning}
                 onClick={() => setScenarioId("S1")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold font-mono transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold font-mono transition-colors flex items-center space-x-1.5 ${
                   scenarioId === "S1"
                     ? "bg-emerald-950 text-emerald-300 border border-emerald-600 font-bold"
                     : "text-zinc-400 hover:text-emerald-300"
                 }`}
               >
-                S1: Clean
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>S1: Clean</span>
               </button>
               <button
                 disabled={isRunning}
                 onClick={() => setScenarioId("S2")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold font-mono transition-colors ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold font-mono transition-colors flex items-center space-x-1.5 ${
                   scenarioId === "S2"
                     ? "bg-rose-950 text-rose-300 border border-rose-600 font-bold"
                     : "text-zinc-400 hover:text-rose-300"
                 }`}
               >
-                S2: Attack
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                <span>S2: Attack</span>
               </button>
               <button
                 disabled={isRunning}
                 onClick={() => setScenarioId("S3")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold font-mono transition-colors ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold font-mono transition-colors flex items-center space-x-1.5 ${
                   scenarioId === "S3"
                     ? "bg-amber-950 text-amber-300 border border-amber-600 font-bold"
                     : "text-zinc-400 hover:text-amber-300"
                 }`}
               >
-                S3: Gated
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                <span>S3: Gated</span>
               </button>
             </div>
 
             <button
               onClick={handleRunBoth}
               disabled={isRunning}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-colors ${
+              className={`px-5 py-2 rounded-xl text-xs font-bold tracking-wide transition-colors ${
                 isRunning
                   ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/50"
                   : "bg-rose-600 hover:bg-rose-500 text-white shadow-sm"
@@ -446,12 +449,12 @@ function CompareDashboard() {
         </div>
 
         {/* Declared Task Box */}
-        <div className="pt-4 border-t border-zinc-800/80 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div className="pt-4 border-t border-[#23242c] grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div className="md:col-span-2 space-y-1">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider font-mono">
               Declared Task
             </span>
-            <div className="p-3 rounded-xl bg-[#08090c] border border-zinc-800 font-mono text-zinc-300 text-[11px]">
+            <div className="p-3 rounded-xl bg-[#07070a] border border-[#23242c] font-mono text-zinc-300 text-[11px]">
               {currentScenario.declaredTask}
             </div>
           </div>
@@ -459,7 +462,7 @@ function CompareDashboard() {
             <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider font-mono">
               Target Policy Invariant
             </span>
-            <div className="p-3 rounded-xl bg-[#1a0a10] border border-rose-800/80 text-rose-300 text-[11px] leading-relaxed">
+            <div className="p-3 rounded-xl bg-[#0c0d14] border border-rose-900/60 text-rose-300 text-[11px] leading-relaxed">
               {scenarioId === "S2"
                 ? "Fail-closed: Zero exfiltration of payroll data allowed."
                 : scenarioId === "S3"
@@ -473,7 +476,7 @@ function CompareDashboard() {
       {/* Summary KPI Cards with Crisp Color Accents */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Card 1: Exfiltration Status */}
-        <div className={`p-4 rounded-xl border ${baselineSentEmails > 0 ? "bg-[#1c080e] border-rose-700" : "bg-[#071710] border-emerald-900/80"}`}>
+        <div className={`p-4 rounded-xl border ${baselineSentEmails > 0 ? "bg-[#180a0f] border-rose-800" : "bg-[#0c0d14] border-[#23242c]"}`}>
           <div className="text-[10px] text-zinc-400 font-mono uppercase font-semibold">Data Exfiltration</div>
           <div className="text-base font-bold font-mono mt-1">
             {baselineSentEmails > 0 ? (
@@ -488,7 +491,7 @@ function CompareDashboard() {
         </div>
 
         {/* Card 2: Ratchet Version */}
-        <div className="p-4 rounded-xl bg-[#181208] border border-amber-900/80">
+        <div className="p-4 rounded-xl bg-[#0c0d14] border border-[#23242c]">
           <div className="text-[10px] text-amber-400/90 font-mono uppercase font-semibold">Ratchet Version</div>
           <div className="text-base font-bold font-mono text-amber-300 mt-1">
             v{protectedState?.version || 1}
@@ -499,7 +502,7 @@ function CompareDashboard() {
         </div>
 
         {/* Card 3: Model Tier */}
-        <div className="p-4 rounded-xl bg-[#09151e] border border-cyan-900/80">
+        <div className="p-4 rounded-xl bg-[#0c0d14] border border-[#23242c]">
           <div className="text-[10px] text-cyan-400/90 font-mono uppercase font-semibold">Active Watcher Tier</div>
           <div className="text-base font-bold font-mono mt-1">
             {latestCall?.tier ? (
@@ -516,7 +519,7 @@ function CompareDashboard() {
         </div>
 
         {/* Card 4: Audit Chain */}
-        <div className="p-4 rounded-xl bg-[#071710] border border-emerald-900/80">
+        <div className="p-4 rounded-xl bg-[#0c0d14] border border-[#23242c]">
           <div className="text-[10px] text-emerald-400 font-mono uppercase font-semibold">Audit Integrity</div>
           <div className="text-base font-bold font-mono text-emerald-300 mt-1">
             SHA-256 Valid

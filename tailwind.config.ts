@@ -38,6 +38,19 @@ const config: Config = {
           700: "#222533",
           600: "#2e3245",
         },
+        nvidia: {
+          DEFAULT: "#76b900",
+          dark: "#5a8d00",
+          soft: "rgba(118, 185, 0, 0.12)",
+        },
+        brand: {
+          deep: "#07070a",
+          canvas: "#0c0d14",
+          subtle: "#12141e",
+          elevated: "#181a26",
+          border: "#23242c",
+          "border-strong": "#353745",
+        },
         crimson: {
           50: "#fff1f3",
           100: "#ffe4e7",
