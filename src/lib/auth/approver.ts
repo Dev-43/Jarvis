@@ -1,16 +1,16 @@
 import crypto from "crypto";
 
-export const APPROVER_COOKIE_NAME = "warden_approver";
+export const APPROVER_COOKIE_NAME = "taut_approver";
 
 function getSessionSecret(): string {
-  return process.env.SESSION_SECRET || "warden-demo-session-secret-at-least-32-chars-long";
+  return process.env.SESSION_SECRET || "taut-demo-session-secret-at-least-32-chars-long";
 }
 
 /**
  * Constant-time comparison of approver passcode to prevent timing attacks.
  */
 export function verifyApproverPasscode(candidate: string): boolean {
-  const expected = process.env.APPROVER_PASSCODE || "warden-demo-passcode-2026";
+  const expected = process.env.APPROVER_PASSCODE || "taut-demo-passcode-2026";
   if (!candidate || typeof candidate !== "string") return false;
 
   const candidateBuf = Buffer.from(candidate);

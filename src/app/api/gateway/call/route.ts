@@ -6,13 +6,13 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    // Check x-warden-key header
-    const providedKey = req.headers.get("x-warden-key");
-    const expectedKey = process.env.DEMO_AGENT_KEY || "warden-demo-agent-key-2026";
+    // Check x-taut-key header
+    const providedKey = req.headers.get("x-taut-key");
+    const expectedKey = process.env.DEMO_AGENT_KEY || "taut-demo-agent-key-2026";
 
     if (!providedKey || providedKey !== expectedKey) {
       return NextResponse.json(
-        { error: { code: "UNAUTHORIZED", message: "Invalid or missing x-warden-key header." } },
+        { error: { code: "UNAUTHORIZED", message: "Invalid or missing x-taut-key header." } },
         { status: 401 }
       );
     }

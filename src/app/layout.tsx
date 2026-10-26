@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Warden — Runtime AI Safety Gateway for Autonomous Agents",
+  title: "Taut — Runtime AI Safety Gateway for Autonomous Agents",
   description:
     "Runtime AI safety gateway powered by NVIDIA Nemotron on Nebius Token Factory. Deterministic hard limits, tiered overseer judgment, and a one-way permission ratchet.",
 };
@@ -38,7 +38,7 @@ export default function RootLayout({
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="font-bold text-base tracking-tight text-white font-sans">
-                    Warden
+                    Taut
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800/80 font-semibold uppercase tracking-wider">
                     Oversight Layer

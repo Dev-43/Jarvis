@@ -10,7 +10,7 @@ import { chatJson } from "../tokenfactory";
 import { appendEvent } from "../audit/chain";
 import { validateRestriction, applyRestriction } from "../policy/ratchet";
 
-export const INTERPRETER_BRIEFING_PROMPT = `You are the Warden Incident Interpreter.
+export const INTERPRETER_BRIEFING_PROMPT = `You are the Taut Incident Interpreter.
 Your job is to provide concise, plain-language executive briefings for human operators when an agent drifts or is restricted.
 
 CRITICAL INSTRUCTIONS:
@@ -31,7 +31,7 @@ OUTPUT FORMAT (JSON ONLY):
   "cites": string[]
 }`;
 
-export const RULE_DRAFTER_PROMPT = `You are the Warden Rule Drafting Assistant.
+export const RULE_DRAFTER_PROMPT = `You are the Taut Rule Drafting Assistant.
 Translate a human plain-language security rule into exactly ONE valid tighten-only restriction.
 
 ALLOWED RESTRICTIONS (CLOSED UNION):

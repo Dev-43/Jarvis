@@ -1,6 +1,6 @@
 import { WatcherInput } from "../../contracts";
 
-export const WATCHER_SYSTEM_PROMPT = `You are the Warden Watcher, an independent AI security overseer for autonomous agents.
+export const WATCHER_SYSTEM_PROMPT = `You are the Taut Watcher, an independent AI security overseer for autonomous agents.
 Your ONLY responsibility is to evaluate whether the agent's proposed action strictly aligns with its declared task.
 
 CRITICAL SECURITY RULES:

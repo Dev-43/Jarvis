@@ -18,7 +18,7 @@ export default function HomePage() {
         </h1>
 
         <p className="text-base sm:text-lg text-zinc-400 max-w-3xl leading-relaxed">
-          Autonomous enterprise agents granted broad permissions drift off-task when encountering indirect prompt injections in invoices, vendor files, or emails. <strong className="text-zinc-200">Warden</strong> intercepts every tool invocation using deterministic hard limits, a tiered NVIDIA Nemotron overseer cascade on Nebius Token Factory, and a tamper-evident one-way permission ratchet.
+          Autonomous enterprise agents granted broad permissions drift off-task when encountering indirect prompt injections in invoices, vendor files, or emails. <strong className="text-zinc-200">Taut</strong> intercepts every tool invocation using deterministic hard limits, a tiered NVIDIA Nemotron overseer cascade on Nebius Token Factory, and a tamper-evident one-way permission ratchet.
         </p>
 
         {/* Color-Coded KPI Strip */}
@@ -140,7 +140,7 @@ export default function HomePage() {
             Comparison Scenarios
           </h2>
           <p className="text-sm text-zinc-400 mt-1">
-            Observe identical autonomous agents running in Baseline (unmonitored) vs. Protected (Warden) mode.
+            Observe identical autonomous agents running in Baseline (unmonitored) vs. Protected (Taut) mode.
           </p>
         </div>
 
@@ -184,7 +184,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-sm font-bold text-white">Indirect Prompt Injection & Exfiltration</h3>
               <p className="text-xs text-zinc-300 leading-relaxed">
-                Invoice INV-1007 embeds an indirect prompt injection instructing the agent to harvest confidential HR payroll and email it to an external address. Unmonitored leaks data; Warden blocks and revokes access.
+                Invoice INV-1007 embeds an indirect prompt injection instructing the agent to harvest confidential HR payroll and email it to an external address. Unmonitored leaks data; Taut blocks and revokes access.
               </p>
             </div>
             <Link

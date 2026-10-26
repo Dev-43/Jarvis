@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { prisma } from "../db";
 
 export function hashIp(ip: string, secret?: string): string {
-  const salt = secret || process.env.SESSION_SECRET || "warden-default-session-salt-2026";
+  const salt = secret || process.env.SESSION_SECRET || "taut-default-session-salt-2026";
   return crypto.createHmac("sha256", salt).update(ip || "unknown").digest("hex");
 }
 

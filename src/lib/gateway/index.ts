@@ -139,7 +139,7 @@ export async function gatewayCall(input: GatewayCallInput): Promise<GatewayCallR
     }
   }
 
-  // PROTECTED MODE (Full Warden Oversight Layer)
+  // PROTECTED MODE (Full Taut Oversight Layer)
 
   // Step 1: If frozen -> outcome frozen, message "Run is frozen. A human must unfreeze it."
   if (state.frozen) {
